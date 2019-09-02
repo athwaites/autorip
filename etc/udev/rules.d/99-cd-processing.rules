@@ -1,0 +1,5 @@
+# SUBSYSTEM=="scsi" KERNEL=="s[rg][0-9]*", ACTION=="change", ENV{ID_CDROM_MEDIA_CD}=="?*", RUN+="/usr/local/sbin/autorip.sh cd &"
+# SUBSYSTEM=="scsi" KERNEL=="s[rg][0-9]*", ACTION=="change", ENV{ID_CDROM_MEDIA_DVD}=="?*", RUN+="/usr/local/sbin/autorip.sh dvd &"
+# SUBSYSTEM=="scsi" KERNEL=="s[rg][0-9]*", ACTION=="change", ENV{ID_CDROM_MEDIA_BD}=="?*", RUN+="/usr/local/sbin/autorip.sh bd &"
+
+SUBSYSTEM=="scsi" KERNEL=="s[rg][0-9]*", ACTION=="change", ENV{ID_CDROM}=="?*", RUN+="/usr/local/sbin/autorip.sh &"
