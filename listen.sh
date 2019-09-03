@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo udevadm monitor --property
+sudo udevadm monitor --property --subsystem-match=block
