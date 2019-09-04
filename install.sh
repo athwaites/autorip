@@ -8,9 +8,15 @@ INSTALL_PATH=/usr/local/sbin
 SCRIPT_FILE=autorip.sh
 SCRIPT_PATH=$INSTALL_PATH/$SCRIPT_FILE
 CREDENTIALS_PATH=/root/.autorip
+MUSIC_CONFIG_FILE=.abcde.conf
 
 # Default configuration
-OUTPUT_PATH=$(awk -F '=' '/^OUTPUT_PATH/{print $2}' $DEFAULT_CONFIG_FILE)
+get_config_var() {
+    echo "$(awk -F '=' "/^$1/{print \$2}" $DEFAULT_CONFIG_FILE)"
+}
+OUTPUT_PATH=$(get_config_var OUTPUT_PATH)
+MUSIC_CONFIG_PATH=$(get_config_var MUSIC_CONFIG_PATH)
+MUSIC_DIR=$(get_config_var MUSIC_DIR)
 REMOTE_PATH=""
 
 # Guided installation
@@ -23,6 +29,8 @@ echo -n "Creating autorip storage path..."
 if [ ! -d "$OUTPUT_PATH" ]; then
     mkdir -p "$OUTPUT_PATH"
 fi
+# Get rid of any trailing slash from mount path
+CLEAN_OUTPUT_PATH=${OUTPUT_PATH%/}
 echo "Done."
 
 echo -n "Connect local path to SMB share? [Y/n] "
@@ -45,8 +53,6 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     echo "Done."
 
     echo -n "Adding remote mount to fstab..."
-    # Get rid of any trailing slash from mount path
-    CLEAN_OUTPUT_PATH=${OUTPUT_PATH%/}
     # Just in case it already exists in fstab...
     # Unmount it quietly
     umount -q $CLEAN_OUTPUT_PATH
@@ -55,7 +61,6 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     PATTERN="\@$CLEAN_OUTPUT_PATH@d"
     # Remove line if it exists
     sed -i $PATTERN /etc/fstab
-
     # Add new fstab entry
     FSTAB_ENTRY="$REMOTE_PATH $CLEAN_OUTPUT_PATH cifs credentials=$CREDENTIALS_PATH 0 0"
     echo $FSTAB_ENTRY >> /etc/fstab
@@ -79,6 +84,8 @@ echo "Done."
 
 echo -n "Writing configuration..."
 cp $DEFAULT_CONFIG_FILE $CONFIG_PATH
-sed -i "/OUTPUT_PATH/c\\OUTPUT_PATH=$OUTPUT_PATH/" $CONFIG_PATH
+sed -i "/OUTPUT_PATH/c\\OUTPUT_PATH=$CLEAN_OUTPUT_PATH/" $CONFIG_PATH
 sed -i "/REMOTE_PATH/c\\REMOTE_PATH=$REMOTE_PATH/" $CONFIG_PATH
+cp $MUSIC_CONFIG_FILE $MUSIC_CONFIG_PATH
+sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$CLEAN_OUTPUT_PATH/$MUSIC_DIR/" $MUSIC_CONFIG_PATH
 echo "Done."
