@@ -25,9 +25,9 @@ if [ ! -d "$OUTPUT_PATH" ]; then
 fi
 echo "Done."
 
-echo -n "Connect local path to SMB share? [Y/n]"
+echo -n "Connect local path to SMB share? [Y/n] "
 read RESPONSE
-if [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+if [ -z "$RESPONSE" ] || [ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]; then
     echo -n "SMB share path (e.g. \"//server/share/path\"): "
     read REMOTE_PATH
     echo -n "SMB username: "
