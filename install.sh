@@ -16,7 +16,7 @@ REMOTE_PATH=""
 # Guided installation
 echo -n "Local path to store ripped media [$OUTPUT_PATH]: "
 read NEW_OUTPUT_PATH
-if [ -z "$NEW_OUTPUT_PATH" ]; then
+if [ ! -z "$NEW_OUTPUT_PATH" ]; then
     OUTPUT_PATH=$NEW_OUTPUT_PATH
 fi
 echo -n "Creating autorip storage path..."
@@ -27,7 +27,7 @@ echo "Done."
 
 echo -n "Connect local path to SMB share? [Y/n] "
 read RESPONSE
-if [ -z "$RESPONSE" ] || [ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]; then
+if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     echo -n "SMB share path (e.g. \"//server/share/path\"): "
     read REMOTE_PATH
     echo -n "SMB username: "
@@ -58,6 +58,6 @@ echo "Done."
 
 echo -n "Writing configuration..."
 cp $DEFAULT_CONFIG_FILE $CONFIG_PATH
-sed -i "s/OUTPUT_PATH.*/OUTPUT_PATH = $OUTPUT_PATH/" $CONFIG_PATH
-sed -i "s/REMOTE_PATH.*/REMOTE_PATH = $REMOTE_PATH/" $CONFIG_PATH
+sed -i '/OUTPUT_PATH/c\OUTPUT_PATH = $OUTPUT_PATH/' $CONFIG_PATH
+sed -i '/REMOTE_PATH/c\REMOTE_PATH = $REMOTE_PATH/' $CONFIG_PATH
 echo "Done."
