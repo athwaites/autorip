@@ -24,7 +24,7 @@ touch_dir() {
 # Rip CD function
 rip_cd() {
     # Ensure the output directory is set correctly in the config
-    sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$CLEAN_OUTPUT_PATH/$MUSIC_DIR/" $MUSIC_CONFIG_PATH
+    sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$MUSIC_PATH/" $MUSIC_CONFIG_PATH
     abcde -d $DEVNAME -o flac -N -c $MUSIC_CONFIG_PATH
     eject $DEVNAME
 }
@@ -42,7 +42,7 @@ rip_bd() {
 # Check for remote mount and mount now if unavailable
 REMOTE_PATH=$(get_config_var REMOTE_PATH)
 if [ ! -z "$REMOTE_PATH" ]; then
-    if [ -z "$(mount | grep '$REMOTE_PATH')" ]; then
+    if [ -z "$(mount | grep $REMOTE_PATH)" ]; then
         mount.cifs $REMOTE_PATH $CLEAN_OUTPUT_PATH -o rw,credentials=$(get_config_var CREDENTIALS_PATH)
     fi
 fi
