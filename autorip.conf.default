@@ -1,0 +1,6 @@
+[General]
+OUTPUT_PATH=/mnt/autorip
+
+[SMB]
+REMOTE_PATH=
+CREDENTIALS_PATH=/root/.autorip

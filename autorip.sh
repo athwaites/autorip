@@ -1,5 +1,7 @@
 #!/bin/bash
 
+CONFIG_PATH=/etc/autorip.conf
+
 rip_cd() {
 
 }
