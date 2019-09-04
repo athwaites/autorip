@@ -42,6 +42,26 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     echo "username=$SMB_USERNAME" >> $CREDENTIALS_PATH
     echo "password=$SMB_PASSWORD" >> $CREDENTIALS_PATH
     echo "Done."
+
+    echo -n "Adding remote mount to fstab..."
+    # Get rid of any trailing slash from mount path
+    CLEAN_OUTPUT_PATH=${OUTPUT_PATH%/}
+    # Just in case it already exists in fstab...
+    # Unmount it quietly
+    umount -q $CLEAN_OUTPUT_PATH
+    # Determine the RegEx pattern to find the mount path
+    # (with either trailing space, or trailing slash then space)
+    PATTERN="\@$CLEAN_OUTPUT_PATH@d"
+    # Remove line if it exists
+    sed -i $PATTERN /etc/fstab
+
+    # Add new fstab entry
+    FSTAB_ENTRY="$REMOTE_PATH $CLEAN_OUTPUT_PATH cifs credentials=$CREDENTIALS_PATH,iocharset=utf8,sec=ntlm 0 0"
+    echo $FSTAB_ENTRY >> /etc/fstab
+
+    # Mount fstab
+    mount -a
+    echo "Done."
 fi
 
 # Perform installation
