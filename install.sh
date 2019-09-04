@@ -34,6 +34,7 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     read SMB_USERNAME
     echo -n "SMB password: "
     read -s SMB_PASSWORD
+    echo ""
 
     echo -n "Creating autorip SMB credentials..."
     # Create and chmod first, before writing anything else. Just in case.
@@ -56,7 +57,7 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     sed -i $PATTERN /etc/fstab
 
     # Add new fstab entry
-    FSTAB_ENTRY="$REMOTE_PATH $CLEAN_OUTPUT_PATH cifs credentials=$CREDENTIALS_PATH,iocharset=utf8,sec=ntlm 0 0"
+    FSTAB_ENTRY="$REMOTE_PATH $CLEAN_OUTPUT_PATH cifs credentials=$CREDENTIALS_PATH 0 0"
     echo $FSTAB_ENTRY >> /etc/fstab
 
     # Mount fstab
