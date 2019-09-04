@@ -6,11 +6,11 @@ CONFIG_PATH=/etc/autorip.conf
 RULES_PATH=/etc/udev/rules.d/99-cd-processing.rules
 INSTALL_PATH=/usr/local/sbin
 SCRIPT_FILE=autorip.sh
-SCRIPT_PATH= $INSTALL_PATH/$SCRIPT_FILE
+SCRIPT_PATH=$INSTALL_PATH/$SCRIPT_FILE
 CREDENTIALS_PATH=/root/.autorip
 
 # Default configuration
-OUTPUT_PATH=$(awk '/^OUTPUT_PATH/{print $3}' $DEFAULT_CONFIG_FILE)
+OUTPUT_PATH=$(awk -F '[\s=]+' '/^OUTPUT_PATH/{print $2}' $DEFAULT_CONFIG_FILE)
 REMOTE_PATH=""
 
 # Guided installation

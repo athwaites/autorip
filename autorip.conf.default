@@ -4,3 +4,12 @@ OUTPUT_PATH=/mnt/autorip
 [SMB]
 REMOTE_PATH=
 CREDENTIALS_PATH=/root/.autorip
+
+[Music]
+MUSIC_DIR=Music
+
+[Movies]
+MOVIES_DIR=Movies
+
+[Television]
+TELEVISION_DIR=Television
