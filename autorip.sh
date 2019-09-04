@@ -5,14 +5,14 @@ CONFIG_PATH=/etc/autorip.conf
 
 # Get configuration
 get_config_var() {
-    echo "$(awk -F '[\s=]+' "/^$1/{print \$2}" $CONFIG_PATH)"
+    echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
-OUTPUT_PATH=$(get_var OUTPUT_PATH)
-REMOTE_PATH=$(get_var REMOTE_PATH)
-CREDENTIALS_PATH=$(get_var CREDENTIALS_PATH)
-MUSIC_PATH=$OUTPUT_PATH/$(get_var MUSIC_DIR)
-MOVIES_PATH=$OUTPUT_PATH/$(get_var MOVIES_DIR)
-TELEVISION_PATH=$OUTPUT_PATH/$(get_var TELEVISION_DIR)
+OUTPUT_PATH=$(get_config_var OUTPUT_PATH)
+REMOTE_PATH=$(get_config_var REMOTE_PATH)
+CREDENTIALS_PATH=$(get_config_var CREDENTIALS_PATH)
+MUSIC_PATH=$OUTPUT_PATH/$(get_config_var MUSIC_DIR)
+MOVIES_PATH=$OUTPUT_PATH/$(get_config_var MOVIES_DIR)
+TELEVISION_PATH=$OUTPUT_PATH/$(get_config_var TELEVISION_DIR)
 
 # Touch directory function (create if non-existent)
 touch_dir() {
@@ -23,17 +23,17 @@ touch_dir() {
 
 # Rip CD function
 rip_cd() {
-    
+    echo 
 }
 
 # Rip DVD function
 rip_dvd() {
-
+    echo
 }
 
 # Rip Blu-Ray function
 rip_bd() {
-
+    echo
 }
 
 # Check for remote mount and mount now if unavailable

@@ -10,7 +10,7 @@ SCRIPT_PATH=$INSTALL_PATH/$SCRIPT_FILE
 CREDENTIALS_PATH=/root/.autorip
 
 # Default configuration
-OUTPUT_PATH=$(awk -F '[\s=]+' '/^OUTPUT_PATH/{print $2}' $DEFAULT_CONFIG_FILE)
+OUTPUT_PATH=$(awk -F '=' '/^OUTPUT_PATH/{print $2}' $DEFAULT_CONFIG_FILE)
 REMOTE_PATH=""
 
 # Guided installation
@@ -58,6 +58,6 @@ echo "Done."
 
 echo -n "Writing configuration..."
 cp $DEFAULT_CONFIG_FILE $CONFIG_PATH
-sed -i '/OUTPUT_PATH/c\OUTPUT_PATH = $OUTPUT_PATH/' $CONFIG_PATH
-sed -i '/REMOTE_PATH/c\REMOTE_PATH = $REMOTE_PATH/' $CONFIG_PATH
+sed -i "/OUTPUT_PATH/c\\OUTPUT_PATH=$OUTPUT_PATH/" $CONFIG_PATH
+sed -i "/REMOTE_PATH/c\\REMOTE_PATH=$REMOTE_PATH/" $CONFIG_PATH
 echo "Done."
