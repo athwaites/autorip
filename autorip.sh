@@ -21,24 +21,6 @@ touch_dir() {
     fi
 }
 
-# Rip CD function
-rip_cd() {
-    # Ensure the output directory is set correctly in the config
-    sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$MUSIC_PATH/" $MUSIC_CONFIG_PATH
-    abcde -d $DEVNAME -o flac -N -c $MUSIC_CONFIG_PATH
-    eject $DEVNAME
-}
-
-# Rip DVD function
-rip_dvd() {
-    echo
-}
-
-# Rip Blu-Ray function
-rip_bd() {
-    echo
-}
-
 # Check for remote mount and mount now if unavailable
 REMOTE_PATH=$(get_config_var REMOTE_PATH)
 if [ ! -z "$REMOTE_PATH" ]; then
@@ -54,9 +36,11 @@ touch_dir $TELEVISION_PATH
 
 # Determine media type and call appropriate function
 if [ "$ID_CDROM_MEDIA_CD" = 1 ]; then
-    rip_cd
+    echo /usr/local/sbin/ripcd.sh | at now
 elif [ "$ID_CDROM_MEDIA_DVD" = 1 ]; then
-    rip_dvd
+    echo
+    #echo /usr/local/sbin/ripdvd.sh | at now
 elif [ "$ID_CDROM_MEDIA_BD" = 1 ]; then
-    rip_bd
+    echo
+    #echo /usr/local/sbin/ripbd.sh | at now
 fi

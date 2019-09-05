@@ -8,6 +8,7 @@ CREDENTIALS_PATH=/root/.autorip
 [Music]
 MUSIC_DIR=Music
 MUSIC_CONFIG_PATH=/root/.abcde.conf
+MUSIC_FORMAT=flac
 
 [Movies]
 MOVIES_DIR=Movies

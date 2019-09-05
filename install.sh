@@ -5,8 +5,6 @@ DEFAULT_CONFIG_FILE=autorip.conf.default
 CONFIG_PATH=/etc/autorip.conf
 RULES_PATH=/etc/udev/rules.d/99-cd-processing.rules
 INSTALL_PATH=/usr/local/sbin
-SCRIPT_FILE=autorip.sh
-SCRIPT_PATH=$INSTALL_PATH/$SCRIPT_FILE
 CREDENTIALS_PATH=/root/.autorip
 MUSIC_CONFIG_FILE=.abcde.conf
 
@@ -71,21 +69,25 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
 fi
 
 # Perform installation
+install() {
+    cp "$2" "$1"
+    chmod +x "$1/$2"
+    chown root:root "$1/$2"
+}
 echo -n "Installing script..."
-cp "$SCRIPT_FILE" "$INSTALL_PATH"
-chmod +x "$SCRIPT_PATH"
-chown root:root "$SCRIPT_PATH"
+install $INSTALL_PATH autorip.sh
+install $INSTALL_PATH ripcd.sh
 echo "Done."
 
 echo -n "Updating udev rules..."
-echo "SUBSYSTEM==\"block\" KERNEL==\"s[rg][0-9]*\", ACTION==\"change\", RUN+=\"$SCRIPT_PATH &\"" > "$RULES_PATH"
+echo "SUBSYSTEM==\"block\" KERNEL==\"s[rg][0-9]*\", ACTION==\"change\", RUN+=\"$INSTALL_PATH/autorip.sh &\"" > "$RULES_PATH"
 udevadm control --reload-rules
 echo "Done."
 
 echo -n "Writing configuration..."
 cp $DEFAULT_CONFIG_FILE $CONFIG_PATH
-sed -i "/OUTPUT_PATH/c\\OUTPUT_PATH=$CLEAN_OUTPUT_PATH/" $CONFIG_PATH
-sed -i "/REMOTE_PATH/c\\REMOTE_PATH=$REMOTE_PATH/" $CONFIG_PATH
+sed -i "/OUTPUT_PATH/c\\OUTPUT_PATH=$CLEAN_OUTPUT_PATH" $CONFIG_PATH
+sed -i "/REMOTE_PATH/c\\REMOTE_PATH=$REMOTE_PATH" $CONFIG_PATH
 cp $MUSIC_CONFIG_FILE $MUSIC_CONFIG_PATH
-sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$CLEAN_OUTPUT_PATH/$MUSIC_DIR/" $MUSIC_CONFIG_PATH
+sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$CLEAN_OUTPUT_PATH/$MUSIC_DIR" $MUSIC_CONFIG_PATH
 echo "Done."
