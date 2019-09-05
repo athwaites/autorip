@@ -63,9 +63,9 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     sed -i $PATTERN /etc/fstab
     # Add new fstab entry
     if [ -z $SMB_GID ]; then
-        $SMB_GID_OPT=""
+        SMB_GID_OPT=""
     else
-        $SMB_GID_OPT=",gid=$SMB_GID"
+        SMB_GID_OPT=",gid=$SMB_GID"
     fi
     FSTAB_ENTRY="$REMOTE_PATH $CLEAN_OUTPUT_PATH cifs credentials=$CREDENTIALS_PATH,file_mode=0775,dir_mode=0775$SMB_GID_OPT 0 0"
     echo $FSTAB_ENTRY >> /etc/fstab

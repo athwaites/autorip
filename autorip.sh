@@ -25,11 +25,11 @@ touch_dir() {
 REMOTE_PATH=$(get_config_var REMOTE_PATH)
 if [ ! -z "$REMOTE_PATH" ]; then
     if [ -z "$(mount | grep $REMOTE_PATH)" ]; then
-        $SMB_GID=$(get_config_var SMB_GID)
+        SMB_GID=$(get_config_var SMB_GID)
         if [ -z $SMB_GID ]; then
-            $SMB_GID_OPT=""
+            SMB_GID_OPT=""
         else
-            $SMB_GID_OPT=",gid=$SMB_GID"
+            SMB_GID_OPT=",gid=$SMB_GID"
         fi
         mount.cifs $REMOTE_PATH $CLEAN_OUTPUT_PATH -o rw,credentials=$(get_config_var SMB_CREDENTIALS),file_mode=0775,dir_mode=0775$SMB_GID_OPT
     fi
