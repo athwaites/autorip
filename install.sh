@@ -5,7 +5,7 @@ DEFAULT_CONFIG_FILE=autorip.conf.default
 CONFIG_PATH=/etc/autorip.conf
 RULES_PATH=/etc/udev/rules.d/99-cd-processing.rules
 INSTALL_PATH=/usr/local/sbin
-CREDENTIALS_PATH=/root/.autorip
+SMB_CREDENTIALS=/root/.autorip
 MUSIC_CONFIG_FILE=.abcde.conf
 
 # Default configuration
@@ -36,6 +36,8 @@ read RESPONSE
 if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     echo -n "SMB share path (e.g. \"//server/share/path\"): "
     read REMOTE_PATH
+    echo -n "SMB group ID (e.g. 126): "
+    read SMB_GID
     echo -n "SMB username: "
     read SMB_USERNAME
     echo -n "SMB password: "
@@ -44,10 +46,10 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
 
     echo -n "Creating autorip SMB credentials..."
     # Create and chmod first, before writing anything else. Just in case.
-    > $CREDENTIALS_PATH
-    chmod 600 $CREDENTIALS_PATH
-    echo "username=$SMB_USERNAME" >> $CREDENTIALS_PATH
-    echo "password=$SMB_PASSWORD" >> $CREDENTIALS_PATH
+    > $SMB_CREDENTIALS
+    chmod 600 $SMB_CREDENTIALS
+    echo "username=$SMB_USERNAME" >> $SMB_CREDENTIALS
+    echo "password=$SMB_PASSWORD" >> $SMB_CREDENTIALS
     echo "Done."
 
     echo -n "Adding remote mount to fstab..."
@@ -60,7 +62,12 @@ if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     # Remove line if it exists
     sed -i $PATTERN /etc/fstab
     # Add new fstab entry
-    FSTAB_ENTRY="$REMOTE_PATH $CLEAN_OUTPUT_PATH cifs credentials=$CREDENTIALS_PATH 0 0"
+    if [ -z $SMB_GID ]; then
+        $SMB_GID_OPT=""
+    else
+        $SMB_GID_OPT=",gid=$SMB_GID"
+    fi
+    FSTAB_ENTRY="$REMOTE_PATH $CLEAN_OUTPUT_PATH cifs credentials=$CREDENTIALS_PATH,file_mode=0775,dir_mode=0775$SMB_GID_OPT 0 0"
     echo $FSTAB_ENTRY >> /etc/fstab
 
     # Mount fstab
@@ -88,6 +95,7 @@ echo -n "Writing configuration..."
 cp $DEFAULT_CONFIG_FILE $CONFIG_PATH
 sed -i "/OUTPUT_PATH/c\\OUTPUT_PATH=$CLEAN_OUTPUT_PATH" $CONFIG_PATH
 sed -i "/REMOTE_PATH/c\\REMOTE_PATH=$REMOTE_PATH" $CONFIG_PATH
+sed -i "/SMB_GID/c\\SMB_GID=$SMB_GID" $CONFIG_PATH
 cp $MUSIC_CONFIG_FILE $MUSIC_CONFIG_PATH
 sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$CLEAN_OUTPUT_PATH/$MUSIC_DIR" $MUSIC_CONFIG_PATH
 echo "Done."

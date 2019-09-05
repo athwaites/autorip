@@ -3,7 +3,8 @@ OUTPUT_PATH=/mnt/autorip
 
 [SMB]
 REMOTE_PATH=
-CREDENTIALS_PATH=/root/.autorip
+SMB_GID=
+SMB_CREDENTIALS=/root/.autorip
 
 [Music]
 MUSIC_DIR=Music
