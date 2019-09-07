@@ -10,6 +10,7 @@ SMB_CREDENTIALS=/root/.autorip
 MUSIC_DIR=Music
 MUSIC_CONFIG_PATH=/root/.abcde.conf
 MUSIC_FORMAT=flac
+MUSIC_RIPPER=/usr/bin/abcde
 
 [Movies]
 MOVIES_DIR=Movies
