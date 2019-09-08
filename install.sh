@@ -36,7 +36,7 @@ read RESPONSE
 if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     echo -n "SMB share path (e.g. \"//server/share/path\"): "
     read REMOTE_PATH
-    echo -n "SMB group ID (e.g. 126): "
+    echo -n "SMB group ID (e.g. 1001): "
     read SMB_GID
     echo -n "SMB username: "
     read SMB_USERNAME
