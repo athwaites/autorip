@@ -51,10 +51,10 @@ if [ -f "$ACTIVE_FILE_PATH" ] ; then
             # file rename before the proper rename
             ABSOLUTE_EPISODE_LIST=$("$VIDEO_TITLER_BIN" -list --db "$QUERY_DB" --q "$ACTIVE_LABEL")
             NUM_EPISODES=$(wc -l <<< $ABSOLUTE_EPISODE_LIST)
-            for EPISODE_PATH in "$1"/* ; do
+            for EPISODE_PATH in "$ACTIVE_PATH"/* ; do
                 ABSOLUTE_EPISODE_NUM=$(grep -Eo '[0-9]+$' <<< ${EPISODE_PATH:0:-4})
                 EPISODE_NAME=$(sed "$ABSOLUTE_EPISODE_NUM q;d" <<< $ABSOLUTE_EPISODE_LIST)
-                mv "$EPISODE_PATH" "$1"/"$EPISODE_NAME""${$EPISODE_PATH: -4}"
+                mv "$EPISODE_PATH" "$ACTIVE_PATH$EPISODE_NAME${EPISODE_PATH: -4}"
             done
         else
             # Movie
@@ -62,7 +62,6 @@ if [ -f "$ACTIVE_FILE_PATH" ] ; then
             RENAME_FORMAT="$MOVIES_FORMAT"
         fi
         $VIDEO_TITLER_BIN -rename "$ACTIVE_PATH" --db "$QUERY_DB" --q "$ACTIVE_LABEL" --format "$RENAME_FORMAT" -non-strict
-        # mv "$ACTIVE_PATH" "$STAGING_PATH"
     fi
     # Delete the active file
     rm "$ACTIVE_FILE_PATH"
