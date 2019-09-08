@@ -47,6 +47,15 @@ if [ -f "$ACTIVE_FILE_PATH" ] ; then
             # Television
             QUERY_DB="$VIDEO_TELEVISION_DB"
             RENAME_FORMAT="$TELEVISION_FORMAT"
+            # Pull down the series episode list and apply a quick absolute
+            # file rename before the proper rename
+            ABSOLUTE_EPISODE_LIST=$("$VIDEO_TITLER_BIN" -list --db "$QUERY_DB" --q "$ACTIVE_LABEL")
+            NUM_EPISODES=$(wc -l <<< $ABSOLUTE_EPISODE_LIST)
+            for EPISODE_PATH in "$1"/* ; do
+                ABSOLUTE_EPISODE_NUM=$(grep -Eo '[0-9]+$' <<< ${EPISODE_PATH:0:-4})
+                EPISODE_NAME=$(sed "$ABSOLUTE_EPISODE_NUM q;d" <<< $ABSOLUTE_EPISODE_LIST)
+                mv "$EPISODE_PATH" "$1"/"$EPISODE_NAME""${$EPISODE_PATH: -4}"
+            done
         else
             # Movie
             QUERY_DB="$VIDEO_MOVIES_DB"
