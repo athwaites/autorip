@@ -5,11 +5,11 @@ CONFIG_PATH=/etc/autorip.conf
 
 # Get configuration
 get_config_var() {
-    echo "$(awk -F '=' "/^$1/{print \$2}" "$CONFIG_PATH")"
+    echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
 VIDEO_OUTPUT_PATH=$(get_config_var VIDEO_OUTPUT_PATH)
 VIDEO_OUTPUT_PATH=${VIDEO_OUTPUT_PATH%/}
-WORKING_PATH="$VIDEO_OUTPUT_PATH/${ID_FS_LABEL:0:8}"
+WORKING_PATH="$VIDEO_OUTPUT_PATH"/"${ID_FS_LABEL:0:8}"
 WORKING_NAME="disc"
 VIDEO_RIPPER_BIN=$(get_config_var VIDEO_RIPPER_BIN)
 VIDEO_REJECT_RATIO=$(get_config_var VIDEO_RIPPER_BIN)
@@ -30,7 +30,6 @@ touch_dir "$VIDEO_OUTPUT_PATH"
 touch_dir "$WORKING_PATH"
 
 # Get the disc working path
-find /disc.rip/ -maxdepth 1 -type d -name "test*"
 LAST_DISC_PATH=$(find "$WORKING_PATH" -maxdepth 1 -type d -name "$WORKING_NAME*" | tail -1)
 LAST_DISC_NUM=$(grep -Eo '[0-9]+$' <<< $LAST_DISC_PATH)
 DISC_NAME=$(printf '%s_%02d' "$WORKING_NAME" $(($LAST_DISC_NUM + 1)))

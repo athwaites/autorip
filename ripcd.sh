@@ -5,7 +5,7 @@ CONFIG_PATH=/etc/autorip.conf
 
 # Get configuration
 get_config_var() {
-    echo "$(awk -F '=' "/^$1/{print \$2}" "$CONFIG_PATH")"
+    echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
 OUTPUT_PATH=$(get_config_var OUTPUT_PATH)
 OUTPUT_PATH=${OUTPUT_PATH%/}

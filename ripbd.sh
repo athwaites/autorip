@@ -5,7 +5,7 @@ CONFIG_PATH=/etc/autorip.conf
 
 # Get configuration
 get_config_var() {
-    echo "$(awk -F '=' "/^$1/{print \$2}" "$CONFIG_PATH")"
+    echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
 VIDEO_OUTPUT_PATH=$(get_config_var VIDEO_OUTPUT_PATH)
 VIDEO_OUTPUT_PATH=${VIDEO_OUTPUT_PATH%/}
