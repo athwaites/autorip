@@ -84,6 +84,7 @@ install() {
 echo -n "Installing script..."
 install $INSTALL_PATH autorip.sh
 install $INSTALL_PATH ripcd.sh
+install $INSTALL_PATH ripdvd.sh
 echo "Done."
 
 echo -n "Updating udev rules..."
