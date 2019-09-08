@@ -63,6 +63,8 @@ if [ -f "$ACTIVE_FILE_PATH" ] ; then
         fi
         $VIDEO_TITLER_BIN -rename "$ACTIVE_PATH" --db "$QUERY_DB" --q "$ACTIVE_LABEL" --format "$RENAME_FORMAT" -non-strict
     fi
+    # Delete the active path
+    rmdir "$ACTIVE_PATH"
     # Delete the active file
     rm "$ACTIVE_FILE_PATH"
 fi
