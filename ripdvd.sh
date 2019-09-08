@@ -15,6 +15,7 @@ fi
 VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
 WORKING_PATH="$VIDEO_WORKING_PATH"/"${ID_FS_LABEL:0:8}"
 WORKING_NAME="disc"
+ACTIVE_FILE="active"
 VIDEO_RIPPER_BIN=$(get_config_var VIDEO_RIPPER_BIN)
 VIDEO_REJECT_FACTOR=$(get_config_var VIDEO_REJECT_FACTOR)
 TRANSCODER_BIN=$(get_config_var TRANSCODER_BIN)
@@ -40,8 +41,14 @@ touch_dir "$VIDEO_WORKING_PATH"
 touch_dir "$WORKING_PATH"
 touch_dir "$DISC_WORKING_PATH"
 
+# Set the active rip
+ACTIVE_FILE_PATH="$VIDEO_WORKING_PATH"/"$ACTIVE_FILE"
+> "$ACTIVE_FILE_PATH"
+echo $ID_FS_LABEL >> "$ACTIVE_FILE_PATH"
+echo "$WORKING_PATH" >> "$ACTIVE_FILE_PATH"
+
 # Execute rip
-$VIDEO_RIPPER_BIN mkv dev:$DEVNAME all $DISC_WORKING_PATH -r
+"$VIDEO_RIPPER_BIN" mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
 
 # Find largest file size in directory and reject everything below the size
 # factor limit (deletes random titles, special features, etc; leaves just

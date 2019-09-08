@@ -9,7 +9,7 @@ get_config_var() {
 }
 OUTPUT_PATH=$(get_config_var OUTPUT_PATH)
 OUTPUT_PATH=${OUTPUT_PATH%/}
-MUSIC_PATH="$OUTPUT_PATH/$(get_config_var MUSIC_DIR)"
+MUSIC_PATH="$OUTPUT_PATH"/"$(get_config_var MUSIC_DIR)"
 MUSIC_CONFIG_PATH=$(get_config_var MUSIC_CONFIG_PATH)
 MUSIC_FORMAT=$(get_config_var MUSIC_FORMAT)
 MUSIC_RIPPER_BIN=$(get_config_var MUSIC_RIPPER_BIN)
