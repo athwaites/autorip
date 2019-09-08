@@ -7,9 +7,9 @@ CONFIG_PATH=/etc/autorip.conf
 get_config_var() {
     echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
-VIDEO_OUTPUT_PATH=$(get_config_var VIDEO_OUTPUT_PATH)
-VIDEO_OUTPUT_PATH=${VIDEO_OUTPUT_PATH%/}
-WORKING_PATH="$VIDEO_OUTPUT_PATH"/"${ID_FS_LABEL:0:8}"
+VIDEO_WORKING_PATH=$(get_config_var VIDEO_WORKING_PATH)
+VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
+WORKING_PATH="$VIDEO_WORKING_PATH"/"${ID_FS_LABEL:0:8}"
 WORKING_NAME="disc"
 VIDEO_RIPPER_BIN=$(get_config_var VIDEO_RIPPER_BIN)
 VIDEO_REJECT_RATIO=$(get_config_var VIDEO_RIPPER_BIN)
@@ -26,7 +26,7 @@ touch_dir() {
 }
 
 # Ensure the required media directories are available
-touch_dir "$VIDEO_OUTPUT_PATH"
+touch_dir "$VIDEO_WORKING_PATH"
 touch_dir "$WORKING_PATH"
 
 # Get the disc working path
