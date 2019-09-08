@@ -1,19 +1,28 @@
-[General]
+# General
 OUTPUT_PATH=/mnt/autorip
-
-[SMB]
 REMOTE_PATH=
 SMB_GID=
 SMB_CREDENTIALS=/root/.autorip
 
-[Music]
+# Music
 MUSIC_DIR=Music
 MUSIC_CONFIG_PATH=/root/.abcde.conf
 MUSIC_FORMAT=flac
-MUSIC_RIPPER=/usr/bin/abcde
+MUSIC_RIPPER_BIN=/usr/bin/abcde
 
-[Movies]
+# Video
+VIDEO_OUTPUT_PATH=/disc.rip
+VIDEO_RIPPER_BIN=/usr/bin/makemkvcon
+VIDEO_REJECT_FACTOR=5
+
+# Transcoder
+TRANSCODER_CONTAINER_FORMAT=mp4
+TRANSCODER_VIDEO_FORMAT=libx264
+TRANSCODER_AUDIO_FORMAT=aac
+TRANSCODER_BIN=/usr/bin/ffmpeg
+
+# Movies
 MOVIES_DIR=Movies
 
-[Television]
+# Television
 TELEVISION_DIR=Television
