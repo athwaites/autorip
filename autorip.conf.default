@@ -20,11 +20,11 @@ VIDEO_TITLER_BIN=/usr/bin/filebot
 # Movies
 VIDEO_MOVIES_DIR=Movies
 VIDEO_MOVIES_DB=themoviedb
-VIDEO_MOVIES_FORMAT="{n} ({y})"
+VIDEO_MOVIES_FORMAT={n} ({y})
 # Television
 VIDEO_TELEVISION_DIR=Television
 VIDEO_TELEVISION_DB=thetvdb
-VIDEO_TELEVISION_FORMAT="{n}/{n} - {s00e00} - {t}"
+VIDEO_TELEVISION_FORMAT={n}/{n} - {s00e00} - {t}
 
 # Transcoder
 TRANSCODER_CONTAINER_FORMAT=mp4
