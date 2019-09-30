@@ -68,7 +68,3 @@ if [ -f "$ACTIVE_FILE_PATH" ] ; then
     # Delete the active file
     rm "$ACTIVE_FILE_PATH"
 fi
-
-# If everything has been done correctly, we should be able to remove the
-# working directory...
-rmdir "$VIDEO_WORKING_PATH"

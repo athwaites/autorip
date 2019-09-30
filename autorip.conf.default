@@ -13,7 +13,7 @@ MUSIC_FORMAT=flac
 MUSIC_RIPPER_BIN=/usr/bin/abcde
 
 # Video
-VIDEO_WORKING_PATH=/disc.rip
+VIDEO_WORKING_PATH=/mnt/storage/public/Media/Incoming
 VIDEO_REJECT_FACTOR=5
 VIDEO_RIPPER_BIN=/usr/bin/makemkvcon
 VIDEO_TITLER_BIN=/usr/bin/filebot
