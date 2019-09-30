@@ -1,5 +1,5 @@
 # General
-OUTPUT_PATH=/mnt/autorip
+OUTPUT_PATH=/mnt/storage/public/Media/
 
 # SMB
 REMOTE_PATH=

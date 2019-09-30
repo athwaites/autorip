@@ -31,9 +31,9 @@ fi
 CLEAN_OUTPUT_PATH=${OUTPUT_PATH%/}
 echo "Done."
 
-echo -n "Connect local path to SMB share? [Y/n] "
+echo -n "Connect local path to SMB share? [y/N] "
 read RESPONSE
-if [ -z "$RESPONSE" ] || [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+if [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     echo -n "SMB share path (e.g. \"//server/share/path\"): "
     read REMOTE_PATH
     echo -n "SMB group ID (e.g. 1001): "
