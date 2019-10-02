@@ -45,6 +45,7 @@ while true; do
         # Perform the transcode
         $TRANSCODER_BIN -i $CUR_IN_PATH -c:v $TRANSCODER_VIDEO_FORMAT -c:a $TRANSCODER_AUDIO_FORMAT -ac $TRANSCODER_AUDIO_CHANNELS $CUR_OUT_PATH
         # Set the permissions on the output
+        chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
         own_target "$CUR_OUT_PATH"
         # Delete the input
         rm "$CUR_IN_PATH"
