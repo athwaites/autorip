@@ -14,9 +14,9 @@ if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
 fi
 VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
 # WORKING_PATH="$VIDEO_WORKING_PATH/${ID_FS_LABEL:0:8}"
-WORKING_PATH="$VIDEO_WORKING_PATH/Rip/$ID_FS_LABEL"
-WORKING_NAME="disc"
-ACTIVE_FILE="active"
+RIP_WORKING_PATH="$VIDEO_WORKING_PATH/Rip/$ID_FS_LABEL"
+# WORKING_NAME="disc"
+INFO_FILE="info.txt"
 VIDEO_RIPPER_BIN=$(get_config_var VIDEO_RIPPER_BIN)
 VIDEO_REJECT_FACTOR=$(get_config_var VIDEO_REJECT_FACTOR)
 TRANSCODER_BIN=$(get_config_var TRANSCODER_BIN)
@@ -33,21 +33,20 @@ touch_dir() {
 }
 
 # Get the disc working path
-LAST_DISC_PATH=$(find "$WORKING_PATH" -maxdepth 1 -type d -name "$WORKING_NAME*" | tail -1)
-LAST_DISC_NUM=$(grep -Eo '[0-9]+$' <<< $LAST_DISC_PATH)
-DISC_NAME=$(printf '%s_%02d' "$WORKING_NAME" $(($LAST_DISC_NUM + 1)))
-DISC_WORKING_PATH="$WORKING_PATH/$DISC_NAME"
+# LAST_DISC_PATH=$(find "$WORKING_PATH" -maxdepth 1 -type d -name "$WORKING_NAME*" | tail -1)
+# LAST_DISC_NUM=$(grep -Eo '[0-9]+$' <<< $LAST_DISC_PATH)
+# DISC_NAME=$(printf '%s_%02d' "$WORKING_NAME" $(($LAST_DISC_NUM + 1)))
+# DISC_WORKING_PATH="$WORKING_PATH/$DISC_NAME"
+DISC_WORKING_PATH="$RIP_WORKING_PATH/disc"
 
-# Ensure the required media directories are available
-touch_dir "$VIDEO_WORKING_PATH"
-touch_dir "$WORKING_PATH"
+# Ensure the required directories are available
+# touch_dir "$VIDEO_WORKING_PATH"
+# touch_dir "$WORKING_PATH"
 touch_dir "$DISC_WORKING_PATH"
 
 # Set the active rip
-ACTIVE_FILE_PATH="$VIDEO_WORKING_PATH"/"$ACTIVE_FILE"
-> "$ACTIVE_FILE_PATH"
+FILE_INFO_PATH="$VIDEO_WORKING_PATH"/"$ACTIVE_FILE"
 echo $ID_FS_LABEL >> "$ACTIVE_FILE_PATH"
-echo "$WORKING_PATH" >> "$ACTIVE_FILE_PATH"
 
 # Execute rip
 "$VIDEO_RIPPER_BIN" mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
@@ -59,8 +58,8 @@ LARGEST_FILE=$(ls -Sa "$DISC_WORKING_PATH"/*.mkv | head -1)
 LARGEST_FILE_SIZE=$(wc -c < "$LARGEST_FILE")
 find "$DISC_WORKING_PATH" -maxdepth 1 -name "*.mkv" -size -"$(($LARGEST_FILE_SIZE / $VIDEO_REJECT_FACTOR))"c -delete
 
-# Get next file number in WORKING_PATH
-LAST_FILE=$(find "$WORKING_PATH" -maxdepth 1 -type f -name "*.$TRANSCODER_CONTAINER_FORMAT" | tail -1)
+# Get next file number in RIP_WORKING_PATH
+LAST_FILE=$(find "$RIP_WORKING_PATH" -maxdepth 1 -type f -name "*.$TRANSCODER_CONTAINER_FORMAT" | tail -1)
 if [ -f "$LAST_FILE" ] ; then
     LAST_NAME=${LAST_FILE:0:-4}
     LAST_NUM=$(grep -Eo '[0-9]+$' <<< $LAST_NAME)
@@ -75,10 +74,11 @@ for CUR_IN_PATH in "$DISC_WORKING_PATH"/* ; do
         # Skip over directories and non-MKV files
         continue
     fi
-    CUR_OUT_FILE=$(printf '%s_%03d.%s' "$ID_FS_LABEL" "$CUR_NUM" "$TRANSCODER_CONTAINER_FORMAT")
-    CUR_OUT_PATH="$WORKING_PATH"/"$CUR_OUT_FILE"
+    CUR_OUT_FILE=$(printf '%s_%03d.mkv' "$ID_FS_LABEL" "$CUR_NUM")
+    CUR_OUT_PATH="$RIP_WORKING_PATH"/"$CUR_OUT_FILE"
     CUR_NUM=$(($CUR_NUM + 1))
-    $TRANSCODER_BIN -i $CUR_IN_PATH -c:v $TRANSCODER_VIDEO_FORMAT -c:a $TRANSCODER_AUDIO_FORMAT -ac $TRANSCODER_AUDIO_CHANNELS $CUR_OUT_PATH
+    # Move the file from the disc working path to the rip working path
+    mv "$CUR_IN_PATH" "$CUR_OUT_PATH"
 done
 
 # Clear the working disc directory
