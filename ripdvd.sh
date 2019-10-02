@@ -24,11 +24,38 @@ TRANSCODER_CONTAINER_FORMAT=$(get_config_var TRANSCODER_CONTAINER_FORMAT)
 TRANSCODER_VIDEO_FORMAT=$(get_config_var TRANSCODER_VIDEO_FORMAT)
 TRANSCODER_AUDIO_FORMAT=$(get_config_var TRANSCODER_AUDIO_FORMAT)
 TRANSCODER_AUDIO_CHANNELS=$(get_config_var TRANSCODER_AUDIO_CHANNELS)
+DEFAULT_USER=$(get_config_var DEFAULT_USER)
+DEFAULT_GROUP=$(get_config_var DEFAULT_GROUP)
+DEFAULT_DIR_MODE=$(get_config_var DEFAULT_DIR_MODE)
+DEFAULT_FILE_MODE=$(get_config_var DEFAULT_FILE_MODE)
 
 # Touch directory function (create if non-existent)
 touch_dir() {
     if [ ! -d "$1" ]; then
-        mkdir -p "$1"
+        if [ "$DEFAULT_USER" ]; then
+            if [ "$DEFAULT_GROUP" ]; then
+                install -d -m "$DEFAULT_DIR_MODE" -o "$DEFAULT_USER" -g "$DEFAULT_GROUP" "$1"
+            else
+                install -d -m "$DEFAULT_DIR_MODE" -o "$DEFAULT_USER" "$1"
+            fi
+        elif [ "$DEFAULT_GROUP" ]; then
+            install -d -m "$DEFAULT_DIR_MODE" -g "$DEFAULT_GROUP" "$1"
+        else
+            mkdir -p -m "$DEFAULT_DIR_MODE" "$1"
+        fi
+    fi
+}
+
+# Set target ownership function
+own_target() {
+    if [ "$DEFAULT_USER" ]; then
+        if [ "$DEFAULT_GROUP" ]; then
+            chown "$DEFAULT_USER:$DEFAULT_GROUP" "$1"
+        else
+            chown "$DEFAULT_USER" "$1"
+        fi
+    elif [ "$DEFAULT_GROUP" ]; then
+        chgrp "$DEFAULT_GROUP" "$1"
     fi
 }
 
@@ -41,7 +68,7 @@ DISC_WORKING_PATH="$RIP_WORKING_PATH/disc"
 
 # Ensure the required directories are available
 # touch_dir "$VIDEO_WORKING_PATH"
-# touch_dir "$WORKING_PATH"
+# touch_dir "$RIP_WORKING_PATH"
 touch_dir "$DISC_WORKING_PATH"
 
 # Set the active rip
@@ -50,6 +77,9 @@ echo $ID_FS_LABEL >> "$ACTIVE_FILE_PATH"
 
 # Execute rip
 "$VIDEO_RIPPER_BIN" mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
+# Set the permissions accordingly
+chmod "$DEFAULT_FILE_MODE" "$DISC_WORKING_PATH"/*
+own_target "$DISC_WORKING_PATH"/*
 
 # Find largest file size in directory and reject everything below the size
 # factor limit (deletes random titles, special features, etc; leaves just
@@ -75,10 +105,13 @@ for CUR_IN_PATH in "$DISC_WORKING_PATH"/* ; do
         continue
     fi
     CUR_OUT_FILE=$(printf '%s_%03d.mkv' "$ID_FS_LABEL" "$CUR_NUM")
-    CUR_OUT_PATH="$RIP_WORKING_PATH"/"$CUR_OUT_FILE"
+    CUR_OUT_PATH="$RIP_WORKING_PATH/$CUR_OUT_FILE"
     CUR_NUM=$(($CUR_NUM + 1))
     # Move the file from the disc working path to the rip working path
     mv "$CUR_IN_PATH" "$CUR_OUT_PATH"
+    # Set the permissions accordingly
+    chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
+    own_target "$CUR_OUT_PATH"
 done
 
 # Clear the working disc directory

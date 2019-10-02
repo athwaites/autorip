@@ -13,11 +13,38 @@ MUSIC_PATH="$OUTPUT_PATH/$(get_config_var MUSIC_DIR)"
 MOVIES_PATH="$OUTPUT_PATH/$(get_config_var MOVIES_DIR)"
 TELEVISION_PATH="$OUTPUT_PATH/$(get_config_var TELEVISION_DIR)"
 MUSIC_CONFIG_PATH=$(get_config_var MUSIC_CONFIG_PATH)
+DEFAULT_USER=$(get_config_var DEFAULT_USER)
+DEFAULT_GROUP=$(get_config_var DEFAULT_GROUP)
+DEFAULT_DIR_MODE=$(get_config_var DEFAULT_DIR_MODE)
+DEFAULT_FILE_MODE=$(get_config_var DEFAULT_FILE_MODE)
 
 # Touch directory function (create if non-existent)
 touch_dir() {
     if [ ! -d "$1" ]; then
-        mkdir -p "$1"
+        if [ "$DEFAULT_USER" ]; then
+            if [ "$DEFAULT_GROUP" ]; then
+                install -d -m "$DEFAULT_DIR_MODE" -o "$DEFAULT_USER" -g "$DEFAULT_GROUP" "$1"
+            else
+                install -d -m "$DEFAULT_DIR_MODE" -o "$DEFAULT_USER" "$1"
+            fi
+        elif [ "$DEFAULT_GROUP" ]; then
+            install -d -m "$DEFAULT_DIR_MODE" -g "$DEFAULT_GROUP" "$1"
+        else
+            mkdir -p -m "$DEFAULT_DIR_MODE" "$1"
+        fi
+    fi
+}
+
+# Set target ownership function
+own_target() {
+    if [ "$DEFAULT_USER" ]; then
+        if [ "$DEFAULT_GROUP" ]; then
+            chown "$DEFAULT_USER:$DEFAULT_GROUP" "$1"
+        else
+            chown "$DEFAULT_USER" "$1"
+        fi
+    elif [ "$DEFAULT_GROUP" ]; then
+        chgrp "$DEFAULT_GROUP" "$1"
     fi
 }
 
