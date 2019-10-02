@@ -12,6 +12,7 @@ CONFIG_PATH=/etc/autorip.conf
 get_config_var() {
     echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
+WORKING_PATH=${1%/}
 TRANSCODER_BIN=$(get_config_var TRANSCODER_BIN)
 TRANSCODER_CONTAINER_FORMAT=$(get_config_var TRANSCODER_CONTAINER_FORMAT)
 TRANSCODER_VIDEO_FORMAT=$(get_config_var TRANSCODER_VIDEO_FORMAT)
@@ -37,11 +38,11 @@ own_target() {
 
 # Loop through the directory, transcoding all available MKV files
 while true; do
-    for CUR_IN_PATH in "$1"/*.mkv ; do
+    for CUR_IN_PATH in "$WORKING_PATH"/*.mkv ; do
         # Determine the output path for the input path
-        CUR_IN_FILE=$(basename "$CUR_INPATH")
+        CUR_IN_FILE=$(basename "$CUR_IN_PATH")
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
-        CUR_OUT_PATH="$1"/"$CUR_OUT_FILE"
+        CUR_OUT_PATH="$WORKING_PATH"/"$CUR_OUT_FILE"
         # Perform the transcode
         $TRANSCODER_BIN -i $CUR_IN_PATH -c:v $TRANSCODER_VIDEO_FORMAT -c:a $TRANSCODER_AUDIO_FORMAT -ac $TRANSCODER_AUDIO_CHANNELS $CUR_OUT_PATH
         # Set the permissions on the output
@@ -52,7 +53,7 @@ while true; do
     done
 
     # Check if any more MKV files were added since finishing the last loop
-    if [ "$(ls "$1"/*.mkv | wc -l)" == 0 ]; then
+    if [ "$(ls "$WORKING_PATH"/*.mkv | wc -l)" == 0 ]; then
         # We're done, break and finish
         break
     fi
