@@ -73,6 +73,12 @@ if [[ "$RESPONSE" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     # Mount fstab
     mount -a
     echo "Done."
+else
+    # Default user and group of ripped output will need to be set by chown.
+    echo -n "Default chown user for output (e.g. \"adam\"): "
+    read DEFAULT_USER
+    echo -n "Default chown group for output (e.g. \"users\"): "
+    read DEFAULT_GROUP
 fi
 
 # Perform installation
@@ -96,8 +102,13 @@ echo "Done."
 echo -n "Writing configuration..."
 cp "$DEFAULT_CONFIG_FILE" "$CONFIG_PATH"
 sed -i "/OUTPUT_PATH/c\\OUTPUT_PATH=$CLEAN_OUTPUT_PATH" "$CONFIG_PATH"
-sed -i "/REMOTE_PATH/c\\REMOTE_PATH=$REMOTE_PATH" "$CONFIG_PATH"
-sed -i "/SMB_GID/c\\SMB_GID=$SMB_GID" "$CONFIG_PATH"
+if [[ $REMOTE_PATH ]]; then
+    sed -i "/REMOTE_PATH/c\\REMOTE_PATH=$REMOTE_PATH" "$CONFIG_PATH"
+    sed -i "/SMB_GID/c\\SMB_GID=$SMB_GID" "$CONFIG_PATH"
+else
+    sed -i "/DEFAULT_USER/c\\DEFAULT_USER=$DEFAULT_USER" "$CONFIG_PATH"
+    sed -i "/DEFAULT_GROUP/c\\DEFAULT_GROUP=$DEFAULT_GROUP" "$CONFIG_PATH"
+fi
 cp "$MUSIC_CONFIG_FILE" "$MUSIC_CONFIG_PATH"
 sed -i "/OUTPUTDIR/c\\OUTPUTDIR=$CLEAN_OUTPUT_PATH/$MUSIC_DIR" "$MUSIC_CONFIG_PATH"
 echo "Done."
