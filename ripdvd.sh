@@ -61,7 +61,7 @@ touch_dir "$RIP_WORKING_PATH"
 touch_dir "$DISC_WORKING_PATH"
 
 # Set the active rip
-FILE_INFO_PATH="$VIDEO_WORKING_PATH"/"$INFO_FILE"
+FILE_INFO_PATH="$RIP_WORKING_PATH"/"$INFO_FILE"
 echo $ID_FS_LABEL >> "$FILE_INFO_PATH"
 
 # Execute rip
