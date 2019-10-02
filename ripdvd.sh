@@ -78,7 +78,7 @@ LARGEST_FILE_SIZE=$(wc -c < "$LARGEST_FILE")
 find "$DISC_WORKING_PATH" -maxdepth 1 -name "*.mkv" -size -"$(($LARGEST_FILE_SIZE / $VIDEO_REJECT_FACTOR))"c -delete
 
 # Get next file number in RIP_WORKING_PATH
-LAST_FILE=$(find "$RIP_WORKING_PATH" -maxdepth 1 -type f -name "*.mkv" | tail -1)
+LAST_FILE=$(find "$RIP_WORKING_PATH" -maxdepth 1 -type f \( -iname \*.mkv -o -iname \*.mp4 \) | tail -1)
 if [ -f "$LAST_FILE" ] ; then
     LAST_NAME=${LAST_FILE:0:-4}
     LAST_NUM=$(grep -Eo '[0-9]+$' <<< $LAST_NAME)
