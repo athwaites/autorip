@@ -13,7 +13,7 @@ if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
     exit 1
 fi
 VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
-RIP_WORKING_PATH="$VIDEO_WORKING_PATH/$ID_FS_LABEL"
+RIP_WORKING_PATH="$VIDEO_WORKING_PATH/${ID_FS_LABEL:0:8}"
 INFO_FILE="info.txt"
 VIDEO_RIPPER_BIN=$(get_config_var VIDEO_RIPPER_BIN)
 VIDEO_REJECT_FACTOR=$(get_config_var VIDEO_REJECT_FACTOR)
@@ -63,6 +63,8 @@ touch_dir "$DISC_WORKING_PATH"
 # Set the active rip
 FILE_INFO_PATH="$RIP_WORKING_PATH"/"$INFO_FILE"
 echo $ID_FS_LABEL >> "$FILE_INFO_PATH"
+chmod "$DEFAULT_FILE_MODE" "$FILE_INFO_PATH"
+own_target "$FILE_INFO_PATH"
 
 # Execute rip
 "$VIDEO_RIPPER_BIN" mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
@@ -78,11 +80,11 @@ LARGEST_FILE_SIZE=$(wc -c < "$LARGEST_FILE")
 find "$DISC_WORKING_PATH" -maxdepth 1 -name "*.mkv" -size -"$(($LARGEST_FILE_SIZE / $VIDEO_REJECT_FACTOR))"c -delete
 
 # Get next file number in RIP_WORKING_PATH
-LAST_FILE=$(find "$RIP_WORKING_PATH" -maxdepth 1 -type f \( -iname \*.mkv -o -iname \*.mp4 \) | tail -1)
+LAST_FILE=$(find "$RIP_WORKING_PATH" -maxdepth 1 -type f \( -iname \*.mkv -o -iname \*.mp4 \) | sort | tail -1)
 if [ -f "$LAST_FILE" ] ; then
     LAST_NAME=${LAST_FILE:0:-4}
     LAST_NUM=$(grep -Eo '[0-9]+$' <<< $LAST_NAME)
-    CUR_NUM=$(($LAST_NUM + 1))
+    CUR_NUM=$((10#$LAST_NUM + 1))
 else
     CUR_NUM=1
 fi
@@ -95,7 +97,7 @@ for CUR_IN_PATH in "$DISC_WORKING_PATH"/* ; do
     fi
     CUR_OUT_FILE=$(printf '%s_%03d.mkv' "$ID_FS_LABEL" "$CUR_NUM")
     CUR_OUT_PATH="$RIP_WORKING_PATH/$CUR_OUT_FILE"
-    CUR_NUM=$(($CUR_NUM + 1))
+    CUR_NUM=$((10#$CUR_NUM + 1))
     # Move the file from the disc working path to the rip working path
     mv "$CUR_IN_PATH" "$CUR_OUT_PATH"
     # Set the permissions accordingly
