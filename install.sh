@@ -82,16 +82,7 @@ else
 fi
 
 # Perform installation
-# install() {
-#     cp "$2" "$1"
-#     chmod +x "$1/$2"
-#     chown root:root "$1/$2"
-# }
 echo -n "Installing script..."
-# install "$INSTALL_PATH" autorip.sh
-# install "$INSTALL_PATH" ripcd.sh
-# install "$INSTALL_PATH" ripdvd.sh
-# install "$INSTALL_PATH" finalise.sh
 install -m 0755 -o root -g root -t "$INSTALL_PATH" autorip.sh ripcd.sh ripdvd.sh transcode.sh finalise.sh
 echo "Done."
 
