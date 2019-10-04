@@ -13,7 +13,7 @@ if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
     exit 1
 fi
 VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
-RIP_WORKING_PATH="$VIDEO_WORKING_PATH/${ID_FS_LABEL:0:8}"
+RIP_WORKING_PATH="$VIDEO_WORKING_PATH/$ID_FS_LABEL"
 INFO_FILE="info.txt"
 VIDEO_RIPPER_BIN=$(get_config_var VIDEO_RIPPER_BIN)
 VIDEO_REJECT_FACTOR=$(get_config_var VIDEO_REJECT_FACTOR)
@@ -113,7 +113,10 @@ rmdir "$DISC_WORKING_PATH"
 eject $DEVNAME
 
 # Prepare transcode command and execute if not already active
-TRANSCODE_COMMAND="/usr/local/sbin/transcode.sh $RIP_WORKING_PATH"
-if [ -z "$(ps aux | grep "$TRANSCODE_COMMAND" | grep -v grep)" ]; then
-    echo "$TRANSCODE_COMMAND" | at now
+# TRANSCODE_COMMAND="/usr/local/sbin/transcode.sh $RIP_WORKING_PATH"
+# if [ -z "$(ps aux | grep "$TRANSCODE_COMMAND" | grep -v grep)" ]; then
+#     echo "$TRANSCODE_COMMAND" | at now
+# fi
+if [ -z "$(ps aux | grep "transcode.sh" | grep -v grep)" ]; then
+    echo "/usr/local/sbin/transcode.sh" | at now
 fi

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ -z "$1" ] || [ ! -d "$1" ]; then
-    echo "Target directory required! (e.g. transcode.sh \"/path/to/mkvs\")"
-    exit 1
-fi
+# if [ -z "$1" ] || [ ! -d "$1" ]; then
+#     echo "Target directory required! (e.g. transcode.sh \"/path/to/mkvs\")"
+#     exit 1
+# fi
 
 # Set configuration path
 CONFIG_PATH=/etc/autorip.conf
@@ -12,7 +12,12 @@ CONFIG_PATH=/etc/autorip.conf
 get_config_var() {
     echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
-WORKING_PATH=${1%/}
+VIDEO_WORKING_PATH=$(get_config_var VIDEO_WORKING_PATH)
+# Protection to make sure the working path is NOT root directory
+if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
+    exit 1
+fi
+VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
 TRANSCODER_BIN=$(get_config_var TRANSCODER_BIN)
 TRANSCODER_CONTAINER_FORMAT=$(get_config_var TRANSCODER_CONTAINER_FORMAT)
 TRANSCODER_VIDEO_FORMAT=$(get_config_var TRANSCODER_VIDEO_FORMAT)
@@ -38,7 +43,11 @@ own_target() {
 
 # Loop through the directory, transcoding all available MKV files
 while true; do
-    for CUR_IN_PATH in "$WORKING_PATH"/*.mkv ; do
+
+    # Find all the pending MKVs under the working directory (recursive)
+    PENDING_MKVS=$(ls -1tr "$WORKING_PATH"/*/*.mkv)
+
+    for CUR_IN_PATH in "$PENDING_MKVS" ; do
         # Determine the output path for the input path
         CUR_IN_FILE=$(basename "$CUR_IN_PATH")
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
@@ -53,8 +62,9 @@ while true; do
     done
 
     # Check if any more MKV files were added since finishing the last loop
-    if [ "$(ls "$WORKING_PATH"/*.mkv | wc -l)" == 0 ]; then
+    if [ "$(ls "$WORKING_PATH"/*/*.mkv | wc -l)" == 0 ]; then
         # We're done, break and finish
         break
     fi
+    
 done
