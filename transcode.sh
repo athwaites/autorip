@@ -12,12 +12,12 @@ CONFIG_PATH=/etc/autorip.conf
 get_config_var() {
     echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
-VIDEO_WORKING_PATH=$(get_config_var VIDEO_WORKING_PATH)
+WORKING_PATH=$(get_config_var VIDEO_WORKING_PATH)
 # Protection to make sure the working path is NOT root directory
-if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
+if [ "$WORKING_PATH" == "/" ] || [ -z "$WORKING_PATH" ] ; then
     exit 1
 fi
-VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
+WORKING_PATH=${WORKING_PATH%/}
 TRANSCODER_BIN=$(get_config_var TRANSCODER_BIN)
 TRANSCODER_CONTAINER_FORMAT=$(get_config_var TRANSCODER_CONTAINER_FORMAT)
 TRANSCODER_VIDEO_FORMAT=$(get_config_var TRANSCODER_VIDEO_FORMAT)
