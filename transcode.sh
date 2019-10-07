@@ -45,13 +45,12 @@ own_target() {
 while true; do
 
     # Find all the pending MKVs under the working directory (recursive)
-    PENDING_MKVS=$(ls -1tr "$WORKING_PATH"/*/*.mkv)
-
-    for CUR_IN_PATH in "$PENDING_MKVS" ; do
+    for CUR_IN_PATH in $(ls -tr "$WORKING_PATH"/*/*.mkv) ; do
         # Determine the output path for the input path
         CUR_IN_FILE=$(basename "$CUR_IN_PATH")
+        CUR_OUT_DIR=$(dirname "$CUR_IN_PATH")
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
-        CUR_OUT_PATH="$WORKING_PATH"/"$CUR_OUT_FILE"
+        CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
         $TRANSCODER_BIN -i $CUR_IN_PATH -c:v $TRANSCODER_VIDEO_FORMAT -c:a $TRANSCODER_AUDIO_FORMAT -y $CUR_OUT_PATH
         # Set the permissions on the output
