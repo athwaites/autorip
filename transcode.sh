@@ -52,7 +52,7 @@ while true; do
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
         CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
-        $TRANSCODER_BIN -i $CUR_IN_PATH -c:v $TRANSCODER_VIDEO_FORMAT -c:a $TRANSCODER_AUDIO_FORMAT -y $CUR_OUT_PATH
+        $TRANSCODER_BIN -i $CUR_IN_PATH -c:v $TRANSCODER_VIDEO_FORMAT -max_muxing_queue_size 9999 -c:a $TRANSCODER_AUDIO_FORMAT -y $CUR_OUT_PATH
         # Set the permissions on the output
         chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
         own_target "$CUR_OUT_PATH"
