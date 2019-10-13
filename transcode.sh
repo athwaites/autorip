@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# if [ -z "$1" ] || [ ! -d "$1" ]; then
-#     echo "Target directory required! (e.g. transcode.sh \"/path/to/mkvs\")"
-#     exit 1
-# fi
-
 # Set configuration path
 CONFIG_PATH=/etc/autorip.conf
 
@@ -114,19 +109,18 @@ while true; do
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
         CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
-        echo $(get_transcode_command "$CUR_IN_PATH" "$CUR_OUT_PATH")
-        # eval $(get_transcode_command "$CUR_IN_PATH" "$CUR_OUT_PATH")
-        # # Set the permissions on the output
-        # chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
-        # own_target "$CUR_OUT_PATH"
-        # # Delete the input
-        # rm "$CUR_IN_PATH"
+        eval $(get_transcode_command "$CUR_IN_PATH" "$CUR_OUT_PATH")
+        # Set the permissions on the output
+        chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
+        own_target "$CUR_OUT_PATH"
+        # Delete the input
+        rm "$CUR_IN_PATH"
     done
 
-    # # Check if any more MKV files were added since finishing the last loop
-    # if [ "$(ls "$WORKING_PATH"/*/*.mkv | wc -l)" == 0 ]; then
-    #     # We're done, break and finish
-    #     break
-    # fi
+    # Check if any more MKV files were added since finishing the last loop
+    if [ "$(ls "$WORKING_PATH"/*/*.mkv | wc -l)" == 0 ]; then
+        # We're done, break and finish
+        break
+    fi
     
 done
