@@ -106,8 +106,7 @@ get_transcode_command() {
 while true; do
 
     # Find all the pending MKVs under the working directory (recursive)
-    for CUR_IN_MODTIME_PATH in $(find "$WORKING_PATH" -type f -name "*.mkv" -printf "%T@ %p\n" | sort -n); do
-        CUR_IN_PATH=$(cut -d ' ' -f 2- <<< "$CUR_IN_MODTIME_PATH")
+    for CUR_IN_PATH in $(find "$WORKING_PATH" -type f -name "*.mkv" -printf "%T@ %p\n" | sort -n | cut -d ' ' -f 2-); do
         # Determine the output path for the input path
         CUR_IN_FILE=$(basename "$CUR_IN_PATH")
         CUR_OUT_DIR=$(dirname "$CUR_IN_PATH")
