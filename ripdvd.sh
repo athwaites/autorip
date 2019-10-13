@@ -113,10 +113,10 @@ rmdir "$DISC_WORKING_PATH"
 eject $DEVNAME
 
 # Prepare transcode command and execute if not already active
-# TRANSCODE_COMMAND="/usr/local/sbin/transcode.sh $RIP_WORKING_PATH"
-# if [ -z "$(ps aux | grep "$TRANSCODE_COMMAND" | grep -v grep)" ]; then
-#     echo "$TRANSCODE_COMMAND" | at now
-# fi
+TRANSCODE_COMMAND="/usr/local/sbin/transcode.sh $RIP_WORKING_PATH"
+if [ -z "$(ps aux | grep "$TRANSCODE_COMMAND" | grep -v grep)" ]; then
+    echo "$TRANSCODE_COMMAND" | at now
+fi
 if [ -z "$(ps aux | grep "transcode.sh" | grep -v grep)" ]; then
     echo "/usr/local/sbin/transcode.sh" | at now
 fi

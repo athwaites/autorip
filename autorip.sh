@@ -68,8 +68,8 @@ touch_dir "$MOVIES_PATH"
 touch_dir "$TELEVISION_PATH"
 
 # Determine media type and call appropriate function
-if [ "$ID_CDROM_MEDIA_CD" = 1 ]; then
+if [ "$ID_CDROM_MEDIA_CD" -eq 1 ]; then
     echo /usr/local/sbin/ripcd.sh | at now
-elif [ "$ID_CDROM_MEDIA_DVD" = 1 ] || [ "$ID_CDROM_MEDIA_BD" = 1 ]; then
+elif [ "$ID_CDROM_MEDIA_DVD" -eq 1 ] || [ "$ID_CDROM_MEDIA_BD" -eq 1 ]; then
     echo /usr/local/sbin/ripdvd.sh | at now 
 fi
