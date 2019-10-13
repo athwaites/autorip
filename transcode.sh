@@ -106,6 +106,7 @@ get_transcode_command() {
 while true; do
 
     # Find all the pending MKVs under the working directory (recursive)
+    IFS=$'\n'   # Set the for-loop separator to newline only
     for CUR_IN_PATH in $(find "$WORKING_PATH" -type f -name "*.mkv" -printf "%T@ %p\n" | sort -n | cut -d ' ' -f 2-); do
         # Determine the output path for the input path
         CUR_IN_FILE=$(basename "$CUR_IN_PATH")
