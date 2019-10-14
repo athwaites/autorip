@@ -14,8 +14,6 @@ if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
 fi
 VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
 RIP_WORKING_PATH="$VIDEO_WORKING_PATH/$ID_FS_LABEL"
-# INFO_FILE="info.txt"
-VIDEO_RIPPER_BIN=$(get_config_var VIDEO_RIPPER_BIN)
 VIDEO_REJECT_FACTOR=$(get_config_var VIDEO_REJECT_FACTOR)
 DEFAULT_USER=$(get_config_var DEFAULT_USER)
 DEFAULT_GROUP=$(get_config_var DEFAULT_GROUP)
@@ -67,7 +65,7 @@ touch_dir "$DISC_WORKING_PATH"
 # own_target "$FILE_INFO_PATH"
 
 # Execute rip
-"$VIDEO_RIPPER_BIN" mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
+makemkvcon mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
 # Set the permissions accordingly
 chmod "$DEFAULT_FILE_MODE" "$DISC_WORKING_PATH"/*
 own_target "$DISC_WORKING_PATH"/*
@@ -113,10 +111,6 @@ rmdir "$DISC_WORKING_PATH"
 eject $DEVNAME
 
 # Prepare transcode command and execute if not already active
-TRANSCODE_COMMAND="/usr/local/sbin/transcode.sh $RIP_WORKING_PATH"
-if [ -z "$(ps aux | grep "$TRANSCODE_COMMAND" | grep -v grep)" ]; then
-    echo "$TRANSCODE_COMMAND" | at now
-fi
 if [ -z "$(ps aux | grep "transcode.sh" | grep -v grep)" ]; then
     echo "/usr/local/sbin/transcode.sh" | at now
 fi

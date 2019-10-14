@@ -13,8 +13,6 @@ if [ "$WORKING_PATH" == "/" ] || [ -z "$WORKING_PATH" ] ; then
     exit 1
 fi
 WORKING_PATH=${WORKING_PATH%/}
-TRANSCODER_BIN=$(get_config_var TRANSCODER_BIN)
-TRANSCODER_BIN_PROBE=$(get_config_var TRANSCODER_BIN_PROBE)
 TRANSCODER_CONTAINER_FORMAT=$(get_config_var TRANSCODER_CONTAINER_FORMAT)
 TRANSCODER_VIDEO_FORMAT=$(get_config_var TRANSCODER_VIDEO_FORMAT)
 TRANSCODER_VIDEO_PRESET=$(get_config_var TRANSCODER_VIDEO_PRESET)
@@ -48,7 +46,7 @@ own_target() {
 # $2: selected stream (e.g. v:0 for first video stream; a:0 for first audio stream)
 # $3: setting name (e.g. codec_name)
 get_stream_setting() {
-    SETTING_LINE=$("$TRANSCODER_BIN_PROBE" -v error -select_streams "$2" -show_entries stream="$3" "$1" | sed -n 2p)
+    SETTING_LINE=$(ffprobe -v error -select_streams "$2" -show_entries stream="$3" "$1" | sed -n 2p)
     echo "${SETTING_LINE#*=}"
 }
 
@@ -94,7 +92,7 @@ get_audio_options() {
 # $1: input file path
 # $2: output file path
 get_transcode_command() {
-    echo "$TRANSCODER_BIN" -i "$1" $(get_video_options "$1") $(get_audio_options "$1") -y "$2"
+    echo ffmpeg -i "$1" $(get_video_options "$1") $(get_audio_options "$1") -y "$2"
 }
 
 # Loop through the directory, transcoding all available MKV files
