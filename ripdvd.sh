@@ -58,12 +58,6 @@ touch_dir "$VIDEO_WORKING_PATH"
 touch_dir "$RIP_WORKING_PATH"
 touch_dir "$DISC_WORKING_PATH"
 
-# Set the active rip
-# FILE_INFO_PATH="$RIP_WORKING_PATH"/"$INFO_FILE"
-# echo $ID_FS_LABEL >> "$FILE_INFO_PATH"
-# chmod "$DEFAULT_FILE_MODE" "$FILE_INFO_PATH"
-# own_target "$FILE_INFO_PATH"
-
 # Execute rip
 makemkvcon mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
 # Set the permissions accordingly

@@ -88,11 +88,11 @@ get_audio_options() {
     echo -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS"
 }
 
-# Get transcode command
+# Get transcode options
 # $1: input file path
 # $2: output file path
-get_transcode_command() {
-    echo ffmpeg -i "$1" $(get_video_options "$1") $(get_audio_options "$1") -y "$2"
+get_transcode_options() {
+    echo -i "$1" $(get_video_options "$1") $(get_audio_options "$1") -y "$2"
 }
 
 # Loop through the directory, transcoding all available MKV files
@@ -107,7 +107,7 @@ while true; do
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
         CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
-        eval $(get_transcode_command "$CUR_IN_PATH" "$CUR_OUT_PATH")
+        ffmpeg $(get_transcode_options "$CUR_IN_PATH" "$CUR_OUT_PATH")
         # Set the permissions on the output
         chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
         own_target "$CUR_OUT_PATH"
