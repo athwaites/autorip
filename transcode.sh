@@ -50,16 +50,10 @@ get_stream_setting() {
     echo "${SETTING_LINE#*=}"
 }
 
-# Get video options for transcode command
+# Perform the correct transcode routine
 # $1: input file path
-get_video_options() {
-    echo -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999
-}
-
-# Get audio options for transcode command
-# $1: input file path
-get_audio_options() {
-    
+# $2: output file path
+do_transcode() {
     NUM_CHANNELS=$(get_stream_setting "$1" a:0 channels)
     INPUT_CODEC_NAME=$(get_stream_setting "$1" a:0 codec_name)
     INPUT_CODEC_PROFILE=$(get_stream_setting "$1" a:0 profile)
@@ -84,15 +78,10 @@ get_audio_options() {
         NUM_CHANNELS=6
     fi
 
-    # Return the audio option string
-    echo -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS"
-}
-
-# Get transcode options
-# $1: input file path
-# $2: output file path
-get_transcode_options() {
-    echo -i "$1" $(get_video_options "$1") $(get_audio_options "$1") -y "$2"
+    # Execute the transcode
+    ffmpeg -i "$1" \
+    -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
+    -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" -y "$2"
 }
 
 # Loop through the directory, transcoding all available MKV files
@@ -107,7 +96,7 @@ while true; do
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
         CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
-        ffmpeg $(get_transcode_options "$CUR_IN_PATH" "$CUR_OUT_PATH")
+        do_transcode "$CUR_IN_PATH" "$CUR_OUT_PATH"
         # Set the permissions on the output
         chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
         own_target "$CUR_OUT_PATH"
