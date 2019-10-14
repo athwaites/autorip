@@ -116,7 +116,7 @@ while true; do
     done
 
     # Check if any more MKV files were added since finishing the last loop
-    if [ "$(ls "$WORKING_PATH"/*/*.mkv | wc -l)" == 0 ]; then
+    if [ "$(find "$WORKING_PATH" -type f -name "*.mkv" | wc -l)" -eq 0 ]; then
         # We're done, break and finish
         break
     fi
