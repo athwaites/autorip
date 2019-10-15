@@ -81,8 +81,9 @@ do_transcode() {
     # Execute the transcode
     ffmpeg -i "$1" \
     -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-    -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" -y "$2" \
-    -map 0:s:0 -c:s:0 copy
+    -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+    -map 0:s:0 -c:s:0 copy \
+    -y "$2"
 }
 
 # Loop through the directory, transcoding all available MKV files
