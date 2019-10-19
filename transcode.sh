@@ -46,7 +46,7 @@ own_target() {
 # $2: selected stream (e.g. v:0 for first video stream; a:0 for first audio stream)
 # $3: setting name (e.g. codec_name)
 get_stream_setting() {
-    SETTING_LINE=$(ffprobe -v error -select_streams "$2" -show_entries stream="$3" "$1" | sed -n 2p)
+    SETTING_LINE=$(ffprobe -v error -select_streams "$2" -show_entries stream="$3" -of csv=p=0 "$1")
     echo "${SETTING_LINE#*=}"
 }
 
@@ -57,6 +57,7 @@ do_transcode() {
     NUM_CHANNELS=$(get_stream_setting "$1" a:0 channels)
     INPUT_CODEC_NAME=$(get_stream_setting "$1" a:0 codec_name)
     INPUT_CODEC_PROFILE=$(get_stream_setting "$1" a:0 profile)
+    SUBTITLES=$(get_stream_setting "$1" s:0 codec_name)
 
     # Determine the output format and bitrate based on the input audio stream
     if [ "$NUM_CHANNELS" -eq 2 ]; then
@@ -79,11 +80,20 @@ do_transcode() {
     fi
 
     # Execute the transcode
-    ffmpeg -i "$1" \
-    -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-    -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
-    -map 0:s:0 -c:s:0 copy \
-    -y "$2"
+    if [ "$SUBTITLES" ]; then
+        # With subtitles
+        ffmpeg -i "$1" \
+        -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
+        -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+        -map 0:s:0 -c:s:0 copy \
+        -y "$2"
+    else
+        # Without subtitles
+        ffmpeg -i "$1" \
+        -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
+        -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+        -y "$2"
+    fi
 }
 
 # Loop through the directory, transcoding all available MKV files
