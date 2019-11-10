@@ -13,7 +13,7 @@ if [ "$WORKING_PATH" == "/" ] || [ -z "$WORKING_PATH" ] ; then
     exit 1
 fi
 WORKING_PATH=${WORKING_PATH%/}
-OUTPUT_PATH=$(get_config_var VIDEO_OUTPUT_PATH)
+OUTPUT_PATH=$(get_config_var VIDEO_COMPLETE_PATH)
 # Protection to make sure the output path is NOT root directory
 if [ "$OUTPUT_PATH" == "/" ] ; then
     exit 1
