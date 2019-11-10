@@ -129,13 +129,17 @@ while true; do
     for CUR_IN_PATH in $(find "$WORKING_PATH" -type f -name "*.mkv" -printf "%T@ %p\n" | sort -n | cut -d ' ' -f 2-); do
         # Determine the output path for the input path
         CUR_IN_FILE=$(basename "$CUR_IN_PATH")
-        CUR_OUT_DIR=$(dirname "$CUR_IN_PATH")
+        CUR_IN_DIR=$(dirname "$CUR_IN_PATH")
         # Replace the working path section of the current output directory with the output directory path
-        CUR_OUT_DIR="$OUTPUT_PATH""${CUR_OUT_DIR:${#WORKING_PATH}:${#CUR_OUT_DIR}}"
+        CUR_OUT_DIR="$OUTPUT_PATH""${CUR_IN_DIR:${#WORKING_PATH}:${#CUR_IN_DIR}}"
+        CUR_TC_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}_TC" "$TRANSCODER_CONTAINER_FORMAT")
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
+        CUR_TC_PATH="$CUR_IN_DIR"/"$CUR_TC_FILE"
         CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
-        do_transcode "$CUR_IN_PATH" "$CUR_OUT_PATH"
+        do_transcode "$CUR_IN_PATH" "$CUR_TC_PATH"
+        # Move the result on completion
+        mv "$CUR_TC_PATH" "$CUR_OUT_PATH"
         # Set the permissions on the output
         chmod "$DEFAULT_FILE_MODE" "$CUR_OUT_PATH"
         own_target "$CUR_OUT_PATH"
