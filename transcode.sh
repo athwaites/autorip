@@ -34,6 +34,23 @@ DEFAULT_GROUP=$(get_config_var DEFAULT_GROUP)
 DEFAULT_DIR_MODE=$(get_config_var DEFAULT_DIR_MODE)
 DEFAULT_FILE_MODE=$(get_config_var DEFAULT_FILE_MODE)
 
+# Touch directory function (create if non-existent)
+touch_dir() {
+    if [ ! -d "$1" ]; then
+        if [ "$DEFAULT_USER" ]; then
+            if [ "$DEFAULT_GROUP" ]; then
+                install -d -m "$DEFAULT_DIR_MODE" -o "$DEFAULT_USER" -g "$DEFAULT_GROUP" "$1"
+            else
+                install -d -m "$DEFAULT_DIR_MODE" -o "$DEFAULT_USER" "$1"
+            fi
+        elif [ "$DEFAULT_GROUP" ]; then
+            install -d -m "$DEFAULT_DIR_MODE" -g "$DEFAULT_GROUP" "$1"
+        else
+            mkdir -p -m "$DEFAULT_DIR_MODE" "$1"
+        fi
+    fi
+}
+
 # Set target ownership function
 own_target() {
     if [ "$DEFAULT_USER" ]; then
@@ -121,6 +138,9 @@ do_transcode() {
     fi
 }
 
+# Ensure the required directories are available
+touch_dir "$OUTPUT_PATH"
+
 # Loop through the directory, transcoding all available MKV files
 while true; do
 
@@ -138,6 +158,8 @@ while true; do
         CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
         do_transcode "$CUR_IN_PATH" "$CUR_TC_PATH"
+        # Make sure the output location exists
+        touch_dir "$CUR_OUT_PATH"
         # Move the result on completion
         mv "$CUR_TC_PATH" "$CUR_OUT_PATH"
         # Set the permissions on the output
@@ -145,6 +167,7 @@ while true; do
         own_target "$CUR_OUT_PATH"
         # Delete the input
         rm "$CUR_IN_PATH"
+        rmdir "$CUR_IN_DIR"
     done
 
     # Check if any more MKV files were added since finishing the last loop
