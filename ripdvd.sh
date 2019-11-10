@@ -13,6 +13,12 @@ if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
     exit 1
 fi
 VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
+VIDEO_OUTPUT_PATH=$(get_config_var VIDEO_OUTPUT_PATH)
+# Protection to make sure the working path is NOT root directory
+if [ "$VIDEO_OUTPUT_PATH" == "/" ] ; then
+    exit 1
+fi
+VIDEO_OUTPUT_PATH=${VIDEO_OUTPUT_PATH%/}
 RIP_WORKING_PATH="$VIDEO_WORKING_PATH/$ID_FS_LABEL"
 VIDEO_REJECT_FACTOR=$(get_config_var VIDEO_REJECT_FACTOR)
 DEFAULT_USER=$(get_config_var DEFAULT_USER)
@@ -55,6 +61,7 @@ DISC_WORKING_PATH="$RIP_WORKING_PATH/disc"
 
 # Ensure the required directories are available
 touch_dir "$VIDEO_WORKING_PATH"
+touch_dir "$VIDEO_OUTPUT_PATH"
 touch_dir "$RIP_WORKING_PATH"
 touch_dir "$DISC_WORKING_PATH"
 

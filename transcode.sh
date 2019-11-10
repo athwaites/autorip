@@ -13,6 +13,12 @@ if [ "$WORKING_PATH" == "/" ] || [ -z "$WORKING_PATH" ] ; then
     exit 1
 fi
 WORKING_PATH=${WORKING_PATH%/}
+OUTPUT_PATH=$(get_config_var VIDEO_OUTPUT_PATH)
+# Protection to make sure the output path is NOT root directory
+if [ "$OUTPUT_PATH" == "/" ] ; then
+    exit 1
+fi
+OUTPUT_PATH=${OUTPUT_PATH%/}
 TRANSCODER_CONTAINER_FORMAT=$(get_config_var TRANSCODER_CONTAINER_FORMAT)
 TRANSCODER_VIDEO_FORMAT=$(get_config_var TRANSCODER_VIDEO_FORMAT)
 TRANSCODER_VIDEO_PRESET=$(get_config_var TRANSCODER_VIDEO_PRESET)
@@ -58,41 +64,59 @@ do_transcode() {
     INPUT_CODEC_NAME=$(get_stream_setting "$1" a:0 codec_name)
     INPUT_CODEC_PROFILE=$(get_stream_setting "$1" a:0 profile)
     SUBTITLES=$(get_stream_setting "$1" s:0 codec_name)
+    HD_COPY=0
 
     # Determine the output format and bitrate based on the input audio stream
     if [ "$NUM_CHANNELS" -eq 2 ]; then
         # Stereo
         OUTPUT_FORMAT=$TRANSCODER_STEREO_FORMAT
         OUTPUT_BITRATE=$TRANSCODER_STEREO_BITRATE
-    elif [ "$INPUT_CODEC_NAME" == "truehd" ] || [ "$INPUT_CODEC_PROFILE" == *"HD"* ]; then
-        # HD Surround
-        OUTPUT_FORMAT=$TRANSCODER_HDSURROUND_FORMAT
-        OUTPUT_BITRATE=$TRANSCODER_SURROUND_BITRATE
     else
         # Normal Surround
         OUTPUT_FORMAT=$TRANSCODER_SURROUND_FORMAT
         OUTPUT_BITRATE=$TRANSCODER_SURROUND_BITRATE
     fi
     
-    # Trim the number of channels to the codec limit
-    if [ "$NUM_CHANNELS" -eq 8 ]; then
-        NUM_CHANNELS=6
+    # Check for HD audio
+    if [ "$INPUT_CODEC_NAME" == "truehd" ] || [ "$INPUT_CODEC_PROFILE" == *"HD"* ] || [ "$NUM_CHANNELS" -eq 8 ]; then
+        HD_COPY=1
     fi
 
     # Execute the transcode
     if [ "$SUBTITLES" ]; then
         # With subtitles
-        ffmpeg -i "$1" \
-        -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-        -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
-        -map 0:s:0 -c:s:0 copy \
-        -y "$2"
+        if [ "$HD_COPY" ]; then
+            # With HD copy
+            ffmpeg -i "$1" \
+            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
+            -map 0:a:0 -c:a:0 copy \
+            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -map 0:s:0 -c:s:0 copy \
+            -y "$2"
+        else
+            # Without HD copy
+            ffmpeg -i "$1" \
+            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
+            -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -map 0:s:0 -c:s:0 copy \
+            -y "$2"
+        fi
     else
         # Without subtitles
-        ffmpeg -i "$1" \
-        -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-        -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
-        -y "$2"
+        if [ "$HD_COPY" ]; then
+            # With HD copy
+            ffmpeg -i "$1" \
+            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
+            -map 0:a:0 -c:a:0 copy \
+            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -y "$2"
+        else
+            # Without HD copy
+            ffmpeg -i "$1" \
+            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
+            -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -y "$2"
+        fi
     fi
 }
 
@@ -105,6 +129,8 @@ while true; do
         # Determine the output path for the input path
         CUR_IN_FILE=$(basename "$CUR_IN_PATH")
         CUR_OUT_DIR=$(dirname "$CUR_IN_PATH")
+        # Replace the working path section of the current output directory with the output directory path
+        CUR_OUT_DIR="$OUTPUT_PATH""${CUR_OUT_DIR:${#WORKING_PATH}:${#CUR_OUT_DIR}}"
         CUR_OUT_FILE=$(printf '%s.%s' "${CUR_IN_FILE:0:-4}" "$TRANSCODER_CONTAINER_FORMAT")
         CUR_OUT_PATH="$CUR_OUT_DIR"/"$CUR_OUT_FILE"
         # Perform the transcode
