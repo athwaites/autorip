@@ -61,6 +61,7 @@ get_stream_setting() {
 # $2: output file path
 do_transcode() {
     NUM_CHANNELS=$(get_stream_setting "$1" a:0 channels)
+    ALT_NUM_CHANNELS=$(get_stream_setting "$1" a:1 channels)
     INPUT_CODEC_NAME=$(get_stream_setting "$1" a:0 codec_name)
     INPUT_CODEC_PROFILE=$(get_stream_setting "$1" a:0 profile)
     SUBTITLES=$(get_stream_setting "$1" s:0 codec_name)
@@ -90,7 +91,7 @@ do_transcode() {
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
-            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$ALT_NUM_CHANNELS" \
             -map 0:s:0 -c:s:0 copy \
             -y "$2"
         else
@@ -108,7 +109,7 @@ do_transcode() {
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
-            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$ALT_NUM_CHANNELS" \
             -y "$2"
         else
             # Without HD copy
