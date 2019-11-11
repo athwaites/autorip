@@ -159,7 +159,7 @@ while true; do
         # Perform the transcode
         do_transcode "$CUR_IN_PATH" "$CUR_TC_PATH"
         # Make sure the output location exists
-        touch_dir "$CUR_OUT_PATH"
+        touch_dir "$CUR_OUT_DIR"
         # Move the result on completion
         mv "$CUR_TC_PATH" "$CUR_OUT_PATH"
         # Set the permissions on the output
