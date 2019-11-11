@@ -14,7 +14,14 @@ if [ "$VIDEO_WORKING_PATH" == "/" ] ; then
 fi
 VIDEO_WORKING_PATH=${VIDEO_WORKING_PATH%/}
 RIP_WORKING_PATH="$VIDEO_WORKING_PATH/$ID_FS_LABEL"
+VIDEO_TRANSCODING_PATH=$(get_config_var VIDEO_TRANSCODING_PATH)
+# Protection to make sure the working path is NOT root directory
+if [ "$VIDEO_TRANSCODING_PATH" == "/" ] ; then
+    exit 1
+fi
+RIP_OUTPUT_PATH="$VIDEO_TRANSCODING_PATH/$ID_FS_LABEL"
 VIDEO_REJECT_FACTOR=$(get_config_var VIDEO_REJECT_FACTOR)
+TRANSCODER_CONTAINER_FORMAT=$(get_config_var TRANSCODER_CONTAINER_FORMAT)
 DEFAULT_USER=$(get_config_var DEFAULT_USER)
 DEFAULT_GROUP=$(get_config_var DEFAULT_GROUP)
 DEFAULT_DIR_MODE=$(get_config_var DEFAULT_DIR_MODE)
@@ -57,6 +64,8 @@ DISC_WORKING_PATH="$RIP_WORKING_PATH/disc"
 touch_dir "$VIDEO_WORKING_PATH"
 touch_dir "$RIP_WORKING_PATH"
 touch_dir "$DISC_WORKING_PATH"
+touch_dir "$VIDEO_TRANSCODING_PATH"
+touch_dir "$RIP_OUTPUT_PATH"
 
 # Execute rip
 makemkvcon mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
@@ -72,7 +81,7 @@ LARGEST_FILE_SIZE=$(wc -c < "$LARGEST_FILE")
 find "$DISC_WORKING_PATH" -maxdepth 1 -name "*.mkv" -size -"$(($LARGEST_FILE_SIZE / $VIDEO_REJECT_FACTOR))"c -delete
 
 # Get next file number in RIP_WORKING_PATH
-LAST_FILE=$(find "$RIP_WORKING_PATH" -maxdepth 1 -type f \( -iname \*.mkv -o -iname \*.mp4 \) | sort | tail -1)
+LAST_FILE=$(find "$RIP_OUTPUT_PATH" -maxdepth 1 -type f \( -iname \*.mkv -o -iname \*."$TRANSCODER_CONTAINER_FORMAT" \) | sort | tail -1)
 if [ -f "$LAST_FILE" ] ; then
     LAST_NAME=${LAST_FILE:0:-4}
     LAST_NUM=$(grep -Eo '[0-9]+$' <<< $LAST_NAME)
@@ -88,7 +97,7 @@ for CUR_IN_PATH in "$DISC_WORKING_PATH"/* ; do
         continue
     fi
     CUR_OUT_FILE=$(printf '%s_%03d.mkv' "$ID_FS_LABEL" "$CUR_NUM")
-    CUR_OUT_PATH="$RIP_WORKING_PATH/$CUR_OUT_FILE"
+    CUR_OUT_PATH="$RIP_OUTPUT_PATH/$CUR_OUT_FILE"
     CUR_NUM=$((10#$CUR_NUM + 1))
     # Move the file from the disc working path to the rip working path
     mv "$CUR_IN_PATH" "$CUR_OUT_PATH"
@@ -100,6 +109,7 @@ done
 # Clear the working disc directory
 rm -f "$DISC_WORKING_PATH"/*
 rmdir "$DISC_WORKING_PATH"
+rmdir "$RIP_WORKING_PATH"
 
 # Eject disc on completion
 eject $DEVNAME

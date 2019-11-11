@@ -17,6 +17,7 @@ MUSIC_FORMAT=flac
 
 # Video
 VIDEO_WORKING_PATH=/mnt/storage/public/Media/Ripping/Processing
+VIDEO_TRANSCODING_PATH=/mnt/storage/public/Media/Ripping/Transcoding
 VIDEO_COMPLETE_PATH=/mnt/storage/public/Media/Ripping/Complete
 VIDEO_REJECT_FACTOR=5
 # Movies

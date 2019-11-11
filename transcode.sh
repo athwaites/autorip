@@ -7,7 +7,7 @@ CONFIG_PATH=/etc/autorip.conf
 get_config_var() {
     echo "$(awk -F '=' "/^$1/{print \$2}" $CONFIG_PATH)"
 }
-WORKING_PATH=$(get_config_var VIDEO_WORKING_PATH)
+WORKING_PATH=$(get_config_var VIDEO_TRANSCODING_PATH)
 # Protection to make sure the working path is NOT root directory
 if [ "$WORKING_PATH" == "/" ] || [ -z "$WORKING_PATH" ] ; then
     exit 1
