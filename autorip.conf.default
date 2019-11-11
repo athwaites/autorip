@@ -16,9 +16,9 @@ MUSIC_CONFIG_PATH=/root/.abcde.conf
 MUSIC_FORMAT=flac
 
 # Video
-VIDEO_WORKING_PATH=/mnt/storage/public/Media/Ripping/Processing
-VIDEO_TRANSCODING_PATH=/mnt/storage/public/Media/Ripping/Transcoding
-VIDEO_COMPLETE_PATH=/mnt/storage/public/Media/Ripping/Complete
+VIDEO_WORKING_PATH=/mnt/storage/public/Media/Incoming/Ripping
+VIDEO_TRANSCODING_PATH=/mnt/storage/public/Media/Incoming/Transcoding
+VIDEO_COMPLETE_PATH=/mnt/storage/public/Media/Incoming/Complete
 VIDEO_REJECT_FACTOR=5
 # Movies
 VIDEO_MOVIES_DIR=Movies
