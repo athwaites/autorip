@@ -94,18 +94,18 @@ do_transcode() {
         OUTPUT_BITRATE=$TRANSCODER_SURROUND_BITRATE
     fi
     
-    # Check for HD audio
-    if [ "$INPUT_CODEC_NAME" == "truehd" ] || [ "$INPUT_CODEC_PROFILE" == *"HD"* ] || [ "$NUM_CHANNELS" -eq 8 ]; then
-        HD_COPY=1
+    # Check for 8 channels (force-copy second stream)
+    if [ "$NUM_CHANNELS" -eq 8 ]; then
+        CH_8_COPY=1
     else
-        HD_COPY=0
+        CH_8_COPY=0
     fi
 
     # Execute the transcode
     if [ "$SUBTITLES" ]; then
         # With subtitles
-        if [ "$HD_COPY" -eq 1 ]; then
-            # With HD copy
+        if [ "$CH_8_COPY" -eq 1 ]; then
+            # With 8-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
@@ -113,7 +113,7 @@ do_transcode() {
             -map 0:s:0 -c:s:0 copy \
             -y "$2"
         else
-            # Without HD copy
+            # Without 8-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
@@ -122,15 +122,15 @@ do_transcode() {
         fi
     else
         # Without subtitles
-        if [ "$HD_COPY" -eq 1 ]; then
-            # With HD copy
+        if [ "$CH_8_COPY" -eq 1 ]; then
+            # With 8-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
             -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$ALT_NUM_CHANNELS" \
             -y "$2"
         else
-            # Without HD copy
+            # Without 8-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
