@@ -82,7 +82,6 @@ do_transcode() {
     INPUT_CODEC_NAME=$(get_stream_setting "$1" a:0 codec_name)
     INPUT_CODEC_PROFILE=$(get_stream_setting "$1" a:0 profile)
     SUBTITLES=$(get_stream_setting "$1" s:0 codec_name)
-    HD_COPY=0
 
     # Determine the output format and bitrate based on the input audio stream
     if [ "$NUM_CHANNELS" -eq 2 ]; then
@@ -98,12 +97,14 @@ do_transcode() {
     # Check for HD audio
     if [ "$INPUT_CODEC_NAME" == "truehd" ] || [ "$INPUT_CODEC_PROFILE" == *"HD"* ] || [ "$NUM_CHANNELS" -eq 8 ]; then
         HD_COPY=1
+    else
+        HD_COPY=0
     fi
 
     # Execute the transcode
-    if [ "$SUBTITLES" ]; then
+    if [ "$SUBTITLES" -eq 1 ]; then
         # With subtitles
-        if [ "$HD_COPY" ]; then
+        if [ "$HD_COPY" -eq 1 ]; then
             # With HD copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
@@ -121,7 +122,7 @@ do_transcode() {
         fi
     else
         # Without subtitles
-        if [ "$HD_COPY" ]; then
+        if [ "$HD_COPY" -eq 1 ]; then
             # With HD copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
