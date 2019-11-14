@@ -102,7 +102,7 @@ do_transcode() {
     fi
 
     # Execute the transcode
-    if [ "$SUBTITLES" -eq 1 ]; then
+    if [ "$SUBTITLES" ]; then
         # With subtitles
         if [ "$HD_COPY" -eq 1 ]; then
             # With HD copy
