@@ -79,8 +79,6 @@ get_stream_setting() {
 do_transcode() {
     NUM_CHANNELS=$(get_stream_setting "$1" a:0 channels)
     ALT_NUM_CHANNELS=$(get_stream_setting "$1" a:1 channels)
-    INPUT_CODEC_NAME=$(get_stream_setting "$1" a:0 codec_name)
-    INPUT_CODEC_PROFILE=$(get_stream_setting "$1" a:0 profile)
     SUBTITLES=$(get_stream_setting "$1" s:0 codec_name)
 
     # Determine the output format and bitrate based on the input audio stream
@@ -93,18 +91,11 @@ do_transcode() {
         OUTPUT_FORMAT=$TRANSCODER_SURROUND_FORMAT
         OUTPUT_BITRATE=$TRANSCODER_SURROUND_BITRATE
     fi
-    
-    # Check for 8 channels (force-copy second stream)
-    if [ "$NUM_CHANNELS" -eq 8 ]; then
-        CH_8_COPY=1
-    else
-        CH_8_COPY=0
-    fi
 
     # Execute the transcode
     if [ "$SUBTITLES" ]; then
         # With subtitles
-        if [ "$CH_8_COPY" -eq 1 ]; then
+        if [ "$NUM_CHANNELS" -eq 8 ]; then
             # With 8-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
@@ -122,7 +113,7 @@ do_transcode() {
         fi
     else
         # Without subtitles
-        if [ "$CH_8_COPY" -eq 1 ]; then
+        if [ "$NUM_CHANNELS" -eq 8 ]; then
             # With 8-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
