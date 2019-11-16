@@ -95,8 +95,8 @@ do_transcode() {
     # Execute the transcode
     if [ "$SUBTITLES" ]; then
         # With subtitles
-        if [ "$NUM_CHANNELS" -eq 8 ]; then
-            # With 8-Channel copy
+        if [ "$NUM_CHANNELS" -gt 6 ]; then
+            # With >6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
@@ -104,7 +104,7 @@ do_transcode() {
             -map 0:s:0 -c:s:0 copy \
             -y "$2"
         else
-            # Without 8-Channel copy
+            # With <=6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
@@ -113,15 +113,15 @@ do_transcode() {
         fi
     else
         # Without subtitles
-        if [ "$NUM_CHANNELS" -eq 8 ]; then
-            # With 8-Channel copy
+        if [ "$NUM_CHANNELS" -gt 6 ]; then
+            # With >6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
             -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$ALT_NUM_CHANNELS" \
             -y "$2"
         else
-            # Without 8-Channel copy
+            # With <=6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
