@@ -24,6 +24,7 @@ TRANSCODER_VIDEO_FORMAT=$(get_config_var TRANSCODER_VIDEO_FORMAT)
 TRANSCODER_VIDEO_PRESET=$(get_config_var TRANSCODER_VIDEO_PRESET)
 TRANSCODER_VIDEO_CRF=$(get_config_var TRANSCODER_VIDEO_CRF)
 TRANSCODER_AUDIO_RATE=$(get_config_var TRANSCODER_AUDIO_RATE)
+TRANSCODER_LANGUAGE=$(get_config_var TRANSCODER_LANGUAGE)
 TRANSCODER_STEREO_FORMAT=$(get_config_var TRANSCODER_STEREO_FORMAT)
 TRANSCODER_SURROUND_FORMAT=$(get_config_var TRANSCODER_SURROUND_FORMAT)
 TRANSCODER_HDSURROUND_FORMAT=$(get_config_var TRANSCODER_HDSURROUND_FORMAT)
@@ -100,7 +101,6 @@ do_transcode() {
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
-            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$ALT_NUM_CHANNELS" \
             -map 0:s:0 -c:s:0 copy \
             -y "$2"
         else
@@ -118,7 +118,6 @@ do_transcode() {
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
             -map 0:a:0 -c:a:0 copy \
-            -map 0:a:1 -c:a:1 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$ALT_NUM_CHANNELS" \
             -y "$2"
         else
             # With <=6-Channel copy
