@@ -74,6 +74,19 @@ get_stream_setting() {
     echo "${SETTING_LINE#*=}"
 }
 
+# Get language index (returns stream index of first "hit")
+# $1: path of file to probe
+# $2: selected stream type (e.g. a for audio streams; s for subtitle streams)
+# $3: language code (e.g. "eng" for English)
+get_language_index() {
+    STREAM_INDEX=$(ffprobe -v error -show_entries stream_tags=language -select_streams "$2" -of compact=p=0:nk=1 "$1" | grep -n "$3" | head -1 | cut -d ":" -f 1)
+    if [ "$STREAM_INDEX" ]; then
+        # Correct for 0-indexed streams in ffmpeg against 1-indexed lines for grep
+        STREAM_INDEX=$((10#$STREAM_INDEX - 1))
+    fi
+    echo "$STREAM_INDEX"
+}
+
 # Perform the correct transcode routine
 # $1: input file path
 # $2: output file path
@@ -81,6 +94,8 @@ do_transcode() {
     NUM_CHANNELS=$(get_stream_setting "$1" a:0 channels)
     ALT_NUM_CHANNELS=$(get_stream_setting "$1" a:1 channels)
     SUBTITLES=$(get_stream_setting "$1" s:0 codec_name)
+    AUDIO_LANGUAGE_INDEX=$(get_language_index "$1" a "$TRANSCODER_LANGUAGE")
+    SUBTITLE_LANGUAGE_INDEX=$(get_language_index "$1" s "$TRANSCODER_LANGUAGE")
 
     # Determine the output format and bitrate based on the input audio stream
     if [ "$NUM_CHANNELS" -eq 2 ]; then
@@ -93,6 +108,18 @@ do_transcode() {
         OUTPUT_BITRATE=$TRANSCODER_SURROUND_BITRATE
     fi
 
+    # Determine the audio stream map
+    if [ -z "$AUDIO_LANGUAGE_INDEX" ]; then
+        # If there is no audio for the requested language, take the first track
+        AUDIO_LANGUAGE_INDEX=0
+    fi
+
+    # Determine the subtitle stream map
+    if [ -z "$SUBTITLE_LANGUAGE_INDEX" ]; then
+        # If there is no subtitle for the requested language, don't bother with subtitles at all
+        SUBTITLES=""
+    fi
+
     # Execute the transcode
     if [ "$SUBTITLES" ]; then
         # With subtitles
@@ -100,15 +127,15 @@ do_transcode() {
             # With >6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-            -map 0:a:0 -c:a:0 copy \
-            -map 0:s:0 -c:s:0 copy \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 copy \
+            -map 0:s:"$SUBTITLE_LANGUAGE_INDEX" -c:s:0 copy \
             -y "$2"
         else
             # With <=6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-            -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
-            -map 0:s:0 -c:s:0 copy \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -map 0:s:"$SUBTITLE_LANGUAGE_INDEX" -c:s:0 copy \
             -y "$2"
         fi
     else
@@ -117,13 +144,13 @@ do_transcode() {
             # With >6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-            -map 0:a:0 -c:a:0 copy \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 copy \
             -y "$2"
         else
             # With <=6-Channel copy
             ffmpeg -i "$1" \
             -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -max_muxing_queue_size 9999 \
-            -map 0:a:0 -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
             -y "$2"
         fi
     fi
