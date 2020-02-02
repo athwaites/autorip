@@ -23,17 +23,18 @@ VIDEO_REJECT_FACTOR=5
 # Movies
 VIDEO_MOVIES_DIR=Movies
 VIDEO_MOVIES_DB=themoviedb
-VIDEO_MOVIES_FORMAT="{n.colon('- ')} ({y}) [{vf}] [{vc}] [{ac}]"
+VIDEO_MOVIES_FORMAT="{n.colon('- ')} ({y}) [{vf} {bitdepth}-bit {vc}] [{channels} {aco}]"
 # Television
 VIDEO_TELEVISION_DIR=Television
 VIDEO_TELEVISION_DB=thetvdb
-VIDEO_TELEVISION_FORMAT="{n.colon('- ')}/{n.colon('- ')} - {s00e00} - {t} [{vf}] [{vc}] [{ac}]"
+VIDEO_TELEVISION_FORMAT="{n.colon('- ')} - {s00e00} - {t.colon('- ')} [{vf} {bitdepth}-bit {vc}] [{channels} {aco}]"
 
 # Transcoder
 TRANSCODER_CONTAINER_FORMAT=mkv
-TRANSCODER_VIDEO_FORMAT=libx264
+TRANSCODER_VIDEO_FORMAT=libx265
 TRANSCODER_VIDEO_PRESET=slow
 TRANSCODER_VIDEO_CRF=26
+TRANSCODER_VIDEO_COLOUR=yuv420p
 TRANSCODER_AUDIO_RATE=48000
 TRANSCODER_LANGUAGE=eng
 TRANSCODER_STEREO_FORMAT=ac3
