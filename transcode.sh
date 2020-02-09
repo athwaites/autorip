@@ -31,6 +31,7 @@ TRANSCODER_SURROUND_FORMAT=$(get_config_var TRANSCODER_SURROUND_FORMAT)
 TRANSCODER_HDSURROUND_FORMAT=$(get_config_var TRANSCODER_HDSURROUND_FORMAT)
 TRANSCODER_STEREO_BITRATE=$(get_config_var TRANSCODER_STEREO_BITRATE)
 TRANSCODER_SURROUND_BITRATE=$(get_config_var TRANSCODER_SURROUND_BITRATE)
+TRANSCODER_DOWNSCALE_HDR=$(get_config_var TRANSCODER_DOWNSCALE_HDR)
 DEFAULT_USER=$(get_config_var DEFAULT_USER)
 DEFAULT_GROUP=$(get_config_var DEFAULT_GROUP)
 DEFAULT_DIR_MODE=$(get_config_var DEFAULT_DIR_MODE)
@@ -95,6 +96,7 @@ do_transcode() {
     NUM_CHANNELS=$(get_stream_setting "$1" a:0 channels)
     ALT_NUM_CHANNELS=$(get_stream_setting "$1" a:1 channels)
     SUBTITLES=$(get_stream_setting "$1" s:0 codec_name)
+    PIXEL_FORMAT=$(get_stream_setting "$1" v:0 pix_fmt)
     AUDIO_LANGUAGE_INDEX=$(get_language_index "$1" a "$TRANSCODER_LANGUAGE")
     SUBTITLE_LANGUAGE_INDEX=$(get_language_index "$1" s "$TRANSCODER_LANGUAGE")
 
@@ -121,22 +123,47 @@ do_transcode() {
         SUBTITLES=""
     fi
 
+    # Determine the HDR state
+    if [ "$PIXEL_FORMAT" == "yuv420p10le" ] && [ "$TRANSCODER_DOWNSCALE_HDR" == "1" ]; then
+        #TONEMAP_OPTION="zscale=transfer=linear,tonemap=hable,zscale=transfer=bt709"
+        TONEMAP_OPTION="zscale=tin=smpte2084:min=bt2020nc:pin=bt2020:rin=tv:t=smpte2084:m=bt2020nc:p=bt2020:r=tv,zscale=t=linear,tonemap=tonemap=hable,zscale=t=bt709,format=yuv420p"
+    else
+        TONEMAP_OPTION="format=yuv420p"
+    fi
+
     # Execute the transcode
     if [ "$SUBTITLES" ]; then
         # With subtitles
         if [ "$NUM_CHANNELS" -gt 6 ]; then
             # With >6-Channel copy
             ffmpeg -i "$1" \
-            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -pix_fmt "$TRANSCODER_VIDEO_COLOUR" -max_muxing_queue_size 9999 \
-            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 copy \
-            -map 0:s:"$SUBTITLE_LANGUAGE_INDEX" -c:s:0 copy \
+            -map 0:v:0 \
+                -c:v:0 "$TRANSCODER_VIDEO_FORMAT" \
+                -crf "$TRANSCODER_VIDEO_CRF" \
+                -preset "$TRANSCODER_VIDEO_PRESET" \
+                -vf "$TONEMAP_OPTION" \
+                -max_muxing_queue_size 9999 \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" \
+                -c:a:0 copy \
+            -map 0:s:"$SUBTITLE_LANGUAGE_INDEX" \
+                -c:s:0 copy \
             -y "$2"
         else
             # With <=6-Channel copy
             ffmpeg -i "$1" \
-            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -pix_fmt "$TRANSCODER_VIDEO_COLOUR" -max_muxing_queue_size 9999 \
-            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
-            -map 0:s:"$SUBTITLE_LANGUAGE_INDEX" -c:s:0 copy \
+            -map 0:v:0 \
+                -c:v:0 "$TRANSCODER_VIDEO_FORMAT" \
+                -crf "$TRANSCODER_VIDEO_CRF" \
+                -preset "$TRANSCODER_VIDEO_PRESET" \
+                -vf "$TONEMAP_OPTION" \
+                -max_muxing_queue_size 9999 \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" \
+                -c:a:0 "$OUTPUT_FORMAT" \
+                -ar "$TRANSCODER_AUDIO_RATE" \
+                -ab "$OUTPUT_BITRATE" \
+                -ac "$NUM_CHANNELS" \
+            -map 0:s:"$SUBTITLE_LANGUAGE_INDEX" \
+                -c:s:0 copy \
             -y "$2"
         fi
     else
@@ -144,14 +171,29 @@ do_transcode() {
         if [ "$NUM_CHANNELS" -gt 6 ]; then
             # With >6-Channel copy
             ffmpeg -i "$1" \
-            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -pix_fmt "$TRANSCODER_VIDEO_COLOUR" -max_muxing_queue_size 9999 \
-            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 copy \
+            -map 0:v:0 \
+                -c:v:0 "$TRANSCODER_VIDEO_FORMAT" \
+                -crf "$TRANSCODER_VIDEO_CRF" \
+                -preset "$TRANSCODER_VIDEO_PRESET" \
+                -vf "$TONEMAP_OPTION" \
+                -max_muxing_queue_size 9999 \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" \
+                -c:a:0 copy \
             -y "$2"
         else
             # With <=6-Channel copy
             ffmpeg -i "$1" \
-            -map 0:v:0 -c:v:0 "$TRANSCODER_VIDEO_FORMAT" -crf "$TRANSCODER_VIDEO_CRF" -preset "$TRANSCODER_VIDEO_PRESET" -pix_fmt "$TRANSCODER_VIDEO_COLOUR" -max_muxing_queue_size 9999 \
-            -map 0:a:"$AUDIO_LANGUAGE_INDEX" -c:a:0 "$OUTPUT_FORMAT" -ar "$TRANSCODER_AUDIO_RATE" -ab "$OUTPUT_BITRATE" -ac "$NUM_CHANNELS" \
+            -map 0:v:0 \
+                -c:v:0 "$TRANSCODER_VIDEO_FORMAT" \
+                -crf "$TRANSCODER_VIDEO_CRF" \
+                -preset "$TRANSCODER_VIDEO_PRESET" \
+                -vf "$TONEMAP_OPTION" \
+                -max_muxing_queue_size 9999 \
+            -map 0:a:"$AUDIO_LANGUAGE_INDEX" \
+                -c:a:0 "$OUTPUT_FORMAT" \
+                -ar "$TRANSCODER_AUDIO_RATE" \
+                -ab "$OUTPUT_BITRATE" \
+                -ac "$NUM_CHANNELS" \
             -y "$2"
         fi
     fi
