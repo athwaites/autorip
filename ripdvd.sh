@@ -68,7 +68,7 @@ touch_dir "$VIDEO_TRANSCODING_PATH"
 touch_dir "$RIP_OUTPUT_PATH"
 
 # Execute rip
-makemkvcon mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
+su -"$DEFAULT_USER" -c makemkvcon mkv dev:"$DEVNAME" all "$DISC_WORKING_PATH" -r
 # Set the permissions accordingly
 chmod "$DEFAULT_FILE_MODE" "$DISC_WORKING_PATH"/*
 own_target "$DISC_WORKING_PATH"/*
